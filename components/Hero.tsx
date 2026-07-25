@@ -18,16 +18,16 @@ export default function Hero() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <a
-            href="#tools"
+            href="/dashboard"
             className="font-hud rounded-md bg-phosphor px-5 py-3 text-xs uppercase tracking-[0.15em] text-[#04140b] transition-transform hover:scale-[1.02]"
           >
-            Explore tools
+            Open dashboard
           </a>
           <a
-            href="#download"
+            href="#tools"
             className="font-hud rounded-md border border-line-strong px-5 py-3 text-xs uppercase tracking-[0.15em] text-ink transition-colors hover:border-phosphor hover:text-phosphor"
           >
-            Get the build
+            Explore tools
           </a>
         </div>
 
