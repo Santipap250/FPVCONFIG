@@ -41,6 +41,7 @@ export interface BlackboxResult {
   motorSaturationPercent: number | null;
   motorColumnsFound: number;
   battery: BatteryStats | null;
+  throttleNoise: ThrottleNoiseResult | null;
   detectedColumns: string[];
   warnings: string[];
 }
@@ -158,6 +159,86 @@ export function buildSavedAnalysis(
   };
 }
 
+export interface ThrottleNoiseBin {
+  label: string;
+  rangeLowPercent: number;
+  rangeHighPercent: number;
+  rmsGyroMagnitude: number;
+  sampleCount: number;
+}
+
+export interface ThrottleNoiseResult {
+  bins: ThrottleNoiseBin[];
+  peakBinIndex: number | null;
+  propWashLikely: boolean;
+}
+
+const MIN_SAMPLES_PER_BIN = 20;
+
+/**
+ * Bins samples by observed throttle range (relative to this log's own
+ * min/max motor output, not an assumed absolute scale — motor value ranges
+ * differ by protocol/config) and computes RMS combined-gyro-magnitude per
+ * bin. A markedly higher RMS in the mid-throttle bins than at idle/full is
+ * the classic signature of prop wash.
+ */
+export function computeThrottleNoiseCorrelation(
+  samples: { motorPercent: number; gyroMagnitude: number }[]
+): ThrottleNoiseResult | null {
+  if (samples.length < MIN_SAMPLES_PER_BIN * 2) return null;
+
+  const motorValues = samples.map((s) => s.motorPercent);
+  const min = Math.min(...motorValues);
+  const max = Math.max(...motorValues);
+  if (max - min < 1e-6) return null;
+
+  const bandLabels = ["0-25%", "25-50%", "50-75%", "75-100%"];
+  const bins: ThrottleNoiseBin[] = bandLabels.map((label, i) => ({
+    label,
+    rangeLowPercent: i * 25,
+    rangeHighPercent: (i + 1) * 25,
+    rmsGyroMagnitude: 0,
+    sampleCount: 0,
+  }));
+
+  const bucketed: number[][] = [[], [], [], []];
+  for (const sample of samples) {
+    const relative = (sample.motorPercent - min) / (max - min); // 0..1
+    const idx = Math.min(3, Math.floor(relative * 4));
+    bucketed[idx].push(sample.gyroMagnitude);
+  }
+
+  bucketed.forEach((values, i) => {
+    bins[i].sampleCount = values.length;
+    bins[i].rmsGyroMagnitude = values.length > 0 ? rms(values) : 0;
+  });
+
+  const validBins = bins.filter((b) => b.sampleCount >= MIN_SAMPLES_PER_BIN);
+  if (validBins.length < 2) return { bins, peakBinIndex: null, propWashLikely: false };
+
+  let peakBinIndex: number | null = null;
+  let peakValue = -Infinity;
+  bins.forEach((b, i) => {
+    if (b.sampleCount >= MIN_SAMPLES_PER_BIN && b.rmsGyroMagnitude > peakValue) {
+      peakValue = b.rmsGyroMagnitude;
+      peakBinIndex = i;
+    }
+  });
+
+  // "Prop wash likely" only when the peak sits in a middle throttle band
+  // (not idle, not full throttle) and is meaningfully higher than the
+  // quietest valid bin — mid-throttle is where prop wash classically shows
+  // up, versus noise that simply scales with throttle everywhere.
+  const quietest = Math.min(...validBins.map((b) => b.rmsGyroMagnitude));
+  const propWashLikely =
+    peakBinIndex !== null &&
+    (peakBinIndex === 1 || peakBinIndex === 2) &&
+    quietest > 0 &&
+    peakValue / quietest > 1.4;
+
+  return { bins, peakBinIndex, propWashLikely };
+}
+
 export function parseBlackboxCsv(text: string): BlackboxResult {
   const warnings: string[] = [];
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
@@ -206,6 +287,11 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
   const errorSeries: number[][] = [[], [], []];
   const motorSeries: number[][] = motorIdxs.map(() => []);
   const vbatSeries: number[] = [];
+  // Synchronized same-row pairs (motor throttle level, combined gyro
+  // magnitude) — used for prop-wash-style throttle/noise correlation.
+  // Built from the same row iteration as everything else so it can't drift
+  // out of alignment the way two independently-filtered arrays could.
+  const throttleNoiseSamples: { motorPercent: number; gyroMagnitude: number }[] = [];
   let firstTime: number | null = null;
   let lastTime: number | null = null;
 
@@ -220,6 +306,8 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
       }
     }
 
+    const rowGyro: (number | null)[] = [null, null, null];
+
     for (let axis = 0; axis < 3; axis++) {
       const gIdx = gyroIdx[axis];
       const sIdx = setpointIdx[axis];
@@ -227,16 +315,29 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
       const g = Number(cells[gIdx]);
       if (!Number.isFinite(g)) continue;
       gyroSeries[axis].push(g);
+      rowGyro[axis] = g;
       if (sIdx !== -1) {
         const s = Number(cells[sIdx]);
         if (Number.isFinite(s)) errorSeries[axis].push(s - g);
       }
     }
 
+    const rowMotorValues: number[] = [];
     motorIdxs.forEach((idx, mi) => {
       const v = Number(cells[idx]);
-      if (Number.isFinite(v)) motorSeries[mi].push(v);
+      if (Number.isFinite(v)) {
+        motorSeries[mi].push(v);
+        rowMotorValues.push(v);
+      }
     });
+
+    if (rowMotorValues.length > 0 && rowGyro.every((v) => v !== null)) {
+      const motorAvg = mean(rowMotorValues);
+      const gyroMagnitude = Math.sqrt(
+        (rowGyro[0] as number) ** 2 + (rowGyro[1] as number) ** 2 + (rowGyro[2] as number) ** 2
+      );
+      throttleNoiseSamples.push({ motorPercent: motorAvg, gyroMagnitude });
+    }
 
     if (vbatIdx !== -1) {
       const v = Number(cells[vbatIdx]);
@@ -286,6 +387,8 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
     };
   }
 
+  const throttleNoise = computeThrottleNoiseCorrelation(throttleNoiseSamples);
+
   return {
     sampleCount,
     analyzedSampleCount: gyroSeries[0].length || Math.ceil(sampleCount / stride),
@@ -294,6 +397,7 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
     motorSaturationPercent,
     motorColumnsFound: motorIdxs.length,
     battery,
+    throttleNoise,
     detectedColumns,
     warnings,
   };
