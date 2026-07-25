@@ -241,6 +241,45 @@ export default function BlackboxAnalyzerTool() {
             </p>
           </div>
 
+          {result.throttleNoise && result.throttleNoise.peakBinIndex !== null && (
+            <div className="rounded-2xl border border-line-strong bg-bg-panel/70 p-6">
+              <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">
+                Noise vs throttle level
+              </span>
+              <div className="mt-4 flex items-end gap-3" style={{ height: 90 }}>
+                {result.throttleNoise.bins.map((bin, i) => {
+                  const maxRms = Math.max(...result.throttleNoise!.bins.map((b) => b.rmsGyroMagnitude), 1e-6);
+                  const heightPercent = bin.sampleCount > 0 ? (bin.rmsGyroMagnitude / maxRms) * 100 : 0;
+                  const isPeak = i === result.throttleNoise!.peakBinIndex;
+                  return (
+                    <div key={bin.label} className="flex flex-1 flex-col items-center justify-end gap-1" style={{ height: "100%" }}>
+                      <div
+                        className={`w-full rounded-t ${isPeak ? "bg-amber" : "bg-phosphor/40"}`}
+                        style={{ height: `${Math.max(4, heightPercent)}%` }}
+                      />
+                      <span className="font-hud text-[10px] text-muted">{bin.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {result.throttleNoise.propWashLikely ? (
+                <p className="mt-4 rounded-lg border border-amber/40 bg-amber/5 px-4 py-3 text-sm text-amber">
+                  ⚠ Noise สูงเด่นชัดที่ throttle ช่วงกลาง (
+                  {result.throttleNoise.bins[result.throttleNoise.peakBinIndex].label}) — ลักษณะนี้ตรงกับ
+                  prop wash ทั่วไป ลองเช็ค filter หรือปรับ D-term ช่วงกลาง throttle
+                </p>
+              ) : (
+                <p className="mt-4 text-xs text-muted">
+                  ไม่พบรูปแบบ noise ที่เด่นชัดเฉพาะช่วง throttle กลาง — อาจไม่ใช่ prop wash แบบทั่วไป
+                </p>
+              )}
+              <p className="mt-3 text-xs text-muted">
+                แบ่งช่วง throttle ตามค่าสูงสุด-ต่ำสุดที่พบจริงในไฟล์นี้ (ไม่ใช่ค่าคงที่ตายตัว) แล้ววัด RMS
+                ของขนาดสัญญาณ gyro รวม 3 แกนในแต่ละช่วง — เป็นสัญญาณบ่งชี้ ไม่ใช่การวินิจฉัยที่แน่นอน
+              </p>
+            </div>
+          )}
+
           {result.battery && (
             <div className="rounded-2xl border border-line-strong bg-bg-panel/70 p-6">
               <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">แรงดันแบต</span>
