@@ -1,5 +1,6 @@
 import SiteHeader from "@/components/SiteHeader";
 import Hero from "@/components/Hero";
+import TrustSection from "@/components/TrustSection";
 import ToolsSection from "@/components/ToolsSection";
 import DesignSystemSection from "@/components/DesignSystemSection";
 import RoadmapSection from "@/components/RoadmapSection";
@@ -15,6 +16,7 @@ export default function Home() {
       <SiteHeader />
       <main>
         <Hero />
+        <TrustSection />
         <ToolsSection />
         <DesignSystemSection />
         <RoadmapSection />
