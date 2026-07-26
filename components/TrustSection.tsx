@@ -2,26 +2,30 @@ import Reveal from "./Reveal";
 
 const proofs = [
   {
-    label: "Real formula",
-    title: "Actual Rates, the same math Betaflight uses",
-    copy: "Rates Visualizer reimplements Betaflight's own Actual Rates curve — not an approximation.",
+    label: "สูตรจริง",
+    title: "Actual Rates สูตรเดียวกับที่ Betaflight ใช้",
+    copy: "Rates Visualizer คำนวณจากสูตร Actual Rates ของ Betaflight ตัวจริง ไม่ใช่การประมาณเอาเอง",
+    color: "rates",
   },
   {
-    label: "Real signal processing",
-    title: "FFT-based noise spectrum",
-    copy: "Blackbox Analyzer runs a real Cooley-Tukey FFT on your log, not a rough proxy — verified against known-frequency test signals.",
+    label: "ประมวลผลสัญญาณจริง",
+    title: "FFT วิเคราะห์ noise spectrum จริง",
+    copy: "Blackbox Analyzer รัน Cooley-Tukey FFT จริงบน log ของคุณ ตรวจสอบความถูกต้องแล้วด้วยสัญญาณความถี่ที่รู้ค่าแน่นอน",
+    color: "blackbox",
   },
   {
-    label: "Real physics",
-    title: "Power-to-weight from electrical draw",
-    copy: "Build Helper computes watts-per-gram from actual voltage × current, not guessed thrust numbers with no data behind them.",
+    label: "ฟิสิกส์จริง",
+    title: "Power-to-weight จากไฟฟ้าจริง",
+    copy: "Build Helper คำนวณ watt ต่อกรัมจากแรงดัน × กระแสจริง ไม่ใช่เดาแรงขับที่ไม่มีข้อมูลรองรับ",
+    color: "build",
   },
   {
-    label: "Verified accessible",
-    title: "0 violations, WCAG 2A/2AA",
-    copy: "Every page audited with axe-core — the same engine Lighthouse uses for accessibility scoring.",
+    label: "ตรวจสอบแล้ว",
+    title: "0 ปัญหา ตามมาตรฐาน WCAG 2A/2AA",
+    copy: "ทุกหน้าผ่านการตรวจด้วย axe-core เอนจินเดียวกับที่ Lighthouse ใช้ให้คะแนน accessibility",
+    color: "pid",
   },
-];
+] as const;
 
 export default function TrustSection() {
   return (
@@ -36,8 +40,13 @@ export default function TrustSection() {
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {proofs.map((proof, i) => (
           <Reveal key={proof.title} delay={i * 60}>
-            <article className="h-full rounded-xl border border-line px-5 py-5">
-              <span className="font-hud text-[11px] uppercase tracking-[0.15em] text-phosphor">{proof.label}</span>
+            <article
+              style={{ "--tool-color": `var(--tool-${proof.color})` } as React.CSSProperties}
+              className="h-full rounded-xl border border-line px-5 py-5 transition-colors hover:border-[var(--tool-color)]"
+            >
+              <span className="font-hud text-[11px] uppercase tracking-[0.15em] text-[var(--tool-color)]">
+                {proof.label}
+              </span>
               <h3 className="font-display mt-2 text-sm font-medium leading-snug text-ink">{proof.title}</h3>
               <p className="mt-2 text-xs leading-relaxed text-muted">{proof.copy}</p>
             </article>

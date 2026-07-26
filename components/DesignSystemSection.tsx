@@ -1,11 +1,11 @@
 import Reveal from "./Reveal";
 
 const pillars = [
-  { label: "Speed", copy: "หน้าเว็บต้องโหลดไว ใช้ง่าย และพาไปยังเครื่องมือที่ต้องการได้ทันที" },
-  { label: "Clarity", copy: "โครงสร้างข้อมูลและคำอธิบายต้องชัดเจนสำหรับทั้งมือใหม่และสายจริงจัง" },
-  { label: "Trust", copy: "ภาพรวมแบรนด์ต้องดูน่าเชื่อถือเหมือนเป็น product ที่พร้อมใช้งานจริง" },
-  { label: "Scale", copy: "โครงสร้างต้องพร้อมต่อยอดไปยัง PWA, login, cloud sync และ mobile app" },
-];
+  { label: "Speed", copy: "หน้าเว็บต้องโหลดไว ใช้ง่าย และพาไปยังเครื่องมือที่ต้องการได้ทันที", color: "pid" },
+  { label: "Clarity", copy: "โครงสร้างข้อมูลและคำอธิบายต้องชัดเจนสำหรับทั้งมือใหม่และสายจริงจัง", color: "flight" },
+  { label: "Trust", copy: "ภาพรวมแบรนด์ต้องดูน่าเชื่อถือเหมือนเป็น product ที่พร้อมใช้งานจริง", color: "presets" },
+  { label: "Scale", copy: "โครงสร้างต้องพร้อมต่อยอดไปยัง PWA และ mobile app ในอนาคต", color: "blackbox" },
+] as const;
 
 export default function DesignSystemSection() {
   return (
@@ -24,8 +24,11 @@ export default function DesignSystemSection() {
       <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {pillars.map((pillar, i) => (
           <Reveal key={pillar.label} delay={i * 60}>
-            <article className="h-full rounded-xl border border-line px-5 py-6">
-              <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor">{pillar.label}</span>
+            <article
+              style={{ "--tool-color": `var(--tool-${pillar.color})` } as React.CSSProperties}
+              className="h-full rounded-xl border border-line px-5 py-6 transition-colors hover:border-[var(--tool-color)]"
+            >
+              <span className="font-hud text-xs uppercase tracking-[0.15em] text-[var(--tool-color)]">{pillar.label}</span>
               <p className="mt-3 text-sm leading-relaxed text-muted">{pillar.copy}</p>
             </article>
           </Reveal>
@@ -69,7 +72,7 @@ export default function DesignSystemSection() {
               { title: "Landing", copy: "hero, tools, design, roadmap" },
               { title: "Dashboard", copy: "overview and quick actions" },
               { title: "Tools", copy: "analysis, presets, calculators" },
-              { title: "App path", copy: "PWA, login, sync, export" },
+              { title: "App path", copy: "PWA install, offline shell" },
             ].map((item) => (
               <div key={item.title}>
                 <strong className="font-display block text-sm text-ink">{item.title}</strong>
