@@ -1,5 +1,6 @@
 import SiteHeader from "@/components/SiteHeader";
 import Hero from "@/components/Hero";
+import BootSequence from "@/components/BootSequence";
 import TrustSection from "@/components/TrustSection";
 import ToolsSection from "@/components/ToolsSection";
 import DesignSystemSection from "@/components/DesignSystemSection";
@@ -12,6 +13,7 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 export default function Home() {
   return (
     <>
+      <BootSequence />
       <ServiceWorkerRegister />
       <SiteHeader />
       <main>
