@@ -42,14 +42,16 @@ npm run build
 All three pass as of this delivery. `npm run build` statically generates the
 landing page and all 6 tool pages.
 
-## Deploy (Render)
-Same pattern as OBIXCORE: Node web service.
-- Build command: `npm install && npm run build`
-- Start command: `npm start`
-- No `output: "export"` needed — this ships as a Node server, not a static export.
+## Deploy (Vercel)
+Vercel auto-detects Next.js — no custom build/start commands needed.
+- Push to the connected GitHub repo, Vercel builds and deploys automatically.
+- The app is fully static (no API routes), so this deploys as a static/edge site.
+- Set `NEXT_PUBLIC_SITE_URL` in the Vercel project's Environment Variables to the
+  production domain, so `robots.ts`/`sitemap.ts` generate correct absolute URLs.
 
 ## Honest status of each tool
-Only **Flight Readiness** is marked `beta`; the other five are `planned`.
+All 6 tools are real and working: PID Advisor, Rates Visualizer, Build Helper,
+Blackbox Analyzer, Smart Presets are `beta`; Flight Readiness is `live`.
 `/tools/[slug]` pages state this plainly instead of showing a fake working
 calculator. Update `lib/tools.ts` status field as real logic ships.
 
