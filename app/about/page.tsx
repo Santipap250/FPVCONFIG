@@ -59,7 +59,7 @@ export default function AboutPage() {
           <div className="tool-card hud-corners mt-12 rounded-2xl border border-line-strong p-8">
             <h2 className="font-display text-xl font-medium text-ink">Stack</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted">
-              Next.js (App Router) + TypeScript + Tailwind CSS v4 บน Render เป็น Node web service
+              Next.js (App Router) + TypeScript + Tailwind CSS v4 deploy บน Vercel
               ทุกเครื่องมือคำนวณฝั่ง client ทั้งหมด ยังไม่มี backend/database — เป็นแผนของเฟสถัดไปเมื่อถึงเวลาต้องมี
               cloud sync หรือระบบบัญชีผู้ใช้จริง
             </p>
