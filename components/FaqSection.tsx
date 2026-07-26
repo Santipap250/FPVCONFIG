@@ -11,11 +11,11 @@ const faqs = [
   },
   {
     q: "ตอนนี้เครื่องมือไหนใช้งานได้จริงบ้าง?",
-    a: "Flight Readiness อยู่ในสถานะ beta ส่วนที่เหลืออยู่ระหว่างพัฒนา — หน้าเว็บนี้แสดงสถานะจริงของแต่ละเครื่องมือ ไม่ใช่ mockup",
+    a: "ครบทั้ง 6 เครื่องมือใช้งานได้จริงแล้ว — PID Advisor, Rates Visualizer, Build Helper, Blackbox Analyzer, Smart Presets, Flight Readiness แต่ละหน้าบอกสถานะจริงตรง ๆ (beta/live) ไม่ใช่ mockup",
   },
   {
     q: "ต่อยอดเป็นแอพได้ไหม?",
-    a: "ได้ โครงสร้างปัจจุบันรองรับ PWA install อยู่แล้ว (manifest + service worker) และ routing แบบ Next.js พร้อมขยายเป็น dashboard, login และ sync ในเฟสถัดไป",
+    a: "ได้ โครงสร้างรองรับ PWA install อยู่แล้ว (manifest + service worker) มี Dashboard และ Build Profile ที่เชื่อมทุกเครื่องมือเข้าด้วยกันแล้ว ส่วน cloud sync ข้ามอุปกรณ์เป็นแผนในอนาคตแบบไม่ต้องมีบัญชีผู้ใช้ (ตั้งใจให้เป็น local-first)",
   },
 ];
 

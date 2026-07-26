@@ -4,25 +4,25 @@ const phases = [
   {
     phase: "Phase 1",
     title: "Foundation rebuild",
-    copy: "วางโครงหน้าแรก, navigation, design system, และ component หลักทั้งหมด — สถานะ: เสร็จแล้วในรุ่นนี้",
+    copy: "วางโครงหน้าแรก, navigation, design system, และ component หลักทั้งหมด",
     done: true,
   },
   {
     phase: "Phase 2",
     title: "Tool ecosystem",
-    copy: "ต่อ PID Advisor, Blackbox Analyzer และ Build Helper เข้ากับ shared data model และ backend จริง",
-    done: false,
+    copy: "ครบทั้ง 6 เครื่องมือ ใช้งานได้จริง เชื่อมกับ Build Profile และ Dashboard เดียวกัน",
+    done: true,
   },
   {
     phase: "Phase 3",
     title: "Product polish",
-    copy: "เก็บ motion, performance budget, contrast audit, และ social share preview ให้ครบทุกหน้า",
-    done: false,
+    copy: "test suite, accessibility audit (0 violation), font subsetting, security patch — ตรวจสอบแล้วจริง",
+    done: true,
   },
   {
     phase: "Phase 4",
-    title: "App expansion",
-    copy: "เพิ่ม PWA install flow เต็มรูปแบบ, saved presets, บัญชีผู้ใช้ และ cloud sync",
+    title: "What's next",
+    copy: "รองรับไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
     done: false,
   },
 ];
