@@ -23,7 +23,7 @@ export default function ToolsSection() {
         </p>
       </Reveal>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {tools.map((tool, i) => {
           const isActive = activeSlug === tool.slug;
           return (
@@ -33,14 +33,14 @@ export default function ToolsSection() {
                 onClick={() => setActiveSlug(tool.slug)}
                 aria-pressed={isActive}
                 style={{ "--tool-color": `var(--tool-${tool.color})` } as React.CSSProperties}
-                className={`tool-card hud-corners group w-full rounded-xl border p-5 text-left ${
+                className={`tool-card hud-corners group flex h-full w-full flex-col rounded-xl border p-3.5 text-left sm:p-5 ${
                   isActive ? "border-[var(--tool-color)]" : "border-line"
                 }`}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <ToolIcon tool={tool.color} size={40} />
+                <div className="flex items-start justify-between gap-2">
+                  <ToolIcon tool={tool.color} size={32} className="sm:!h-10 sm:!w-10" />
                   <span
-                    className={`font-hud shrink-0 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] ${
+                    className={`font-hud shrink-0 rounded-full border px-2 py-0.5 text-[9px] uppercase tracking-[0.1em] sm:px-2.5 sm:py-1 sm:text-[10px] sm:tracking-[0.15em] ${
                       tool.status === "live"
                         ? "border-[var(--tool-color)] text-[var(--tool-color)]"
                         : "border-line text-muted"
@@ -50,10 +50,10 @@ export default function ToolsSection() {
                   </span>
                 </div>
 
-                <h3 className="font-display mt-4 text-lg font-medium text-ink">{tool.title}</h3>
-                <p className="mt-1 text-sm text-muted">{tool.short}</p>
+                <h3 className="font-display mt-3 text-sm font-medium text-ink sm:mt-4 sm:text-lg">{tool.title}</h3>
+                <p className="mt-1 line-clamp-2 text-xs text-muted sm:text-sm">{tool.short}</p>
 
-                <div className="mt-4 flex items-center gap-2 font-hud text-[11px] uppercase tracking-[0.15em] text-[var(--tool-color)] opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="mt-3 hidden items-center gap-2 font-hud text-[11px] uppercase tracking-[0.15em] text-[var(--tool-color)] opacity-0 transition-opacity group-hover:opacity-100 sm:mt-4 sm:flex">
                   {isActive ? "Viewing below ↓" : "Preview instrument →"}
                 </div>
               </button>
