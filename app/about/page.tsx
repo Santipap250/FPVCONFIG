@@ -65,6 +65,33 @@ export default function AboutPage() {
             </p>
           </div>
         </Reveal>
+
+        <Reveal delay={260}>
+          <div className="tool-card hud-corners mt-4 rounded-2xl border border-line-strong p-8">
+            <h2 className="font-display text-xl font-medium text-ink">Contact</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted">
+              ติดตามความคืบหน้า ส่งฟีดแบ็ก หรือทักไปคุยเรื่อง build ได้โดยตรง
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href="https://www.facebook.com/banmysanti"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-hud rounded-md border border-line-strong px-4 py-2 text-xs uppercase tracking-[0.15em] text-phosphor hover:bg-phosphor hover:text-[#04140b]"
+              >
+                Facebook Page
+              </a>
+              <a
+                href="https://www.facebook.com/santipab.songkarak"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-hud rounded-md border border-line-strong px-4 py-2 text-xs uppercase tracking-[0.15em] text-ink hover:border-phosphor hover:text-phosphor"
+              >
+                ผู้พัฒนา
+              </a>
+            </div>
+          </div>
+        </Reveal>
       </main>
       <SiteFooter />
     </>
