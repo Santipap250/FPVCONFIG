@@ -56,7 +56,14 @@ export const metadata: Metadata = {
       "A tuning and build console for FPV pilots: PID guidance, blackbox reading, build matching, and flight readiness.",
     url: siteUrl,
     siteName: "OBIXCONFIG FPV",
-    images: ["/og-preview.svg"],
+    images: [
+      {
+        url: "/og-preview.png",
+        width: 1200,
+        height: 630,
+        alt: "OBIXCONFIG FPV — tuning console for FPV pilots",
+      },
+    ],
     locale: "th_TH",
     type: "website",
   },
@@ -64,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "OBIXCONFIG FPV",
     description: "Tuning intelligence for FPV pilots.",
-    images: ["/og-preview.svg"],
+    images: ["/og-preview.png"],
   },
   appleWebApp: {
     capable: true,
