@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     siteName: "OBIXCONFIG FPV",
     images: [
       {
-        url: "/og-preview.png",
+        url: "/og-preview.jpg",
         width: 1200,
         height: 630,
         alt: "OBIXCONFIG FPV — tuning console for FPV pilots",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "OBIXCONFIG FPV",
     description: "Tuning intelligence for FPV pilots.",
-    images: ["/og-preview.png"],
+    images: ["/og-preview.jpg"],
   },
   appleWebApp: {
     capable: true,
