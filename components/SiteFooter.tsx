@@ -35,6 +35,34 @@ export default function SiteFooter() {
             <p className="font-hud uppercase tracking-[0.15em]">{siteHost}</p>
           </div>
         </div>
+
+        <div className="flex flex-col gap-3 border-t border-line pt-4 text-xs text-muted md:flex-row md:items-center md:justify-between">
+          <p className="font-hud uppercase tracking-[0.15em] text-phosphor-dim">Contact</p>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://www.facebook.com/banmysanti"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-hud flex items-center gap-1.5 uppercase tracking-[0.15em] hover:text-phosphor"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z" />
+              </svg>
+              Facebook Page
+            </a>
+            <a
+              href="https://www.facebook.com/santipab.songkarak"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-hud flex items-center gap-1.5 uppercase tracking-[0.15em] hover:text-phosphor"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z" />
+              </svg>
+              ผู้พัฒนา
+            </a>
+          </div>
+        </div>
       </div>
     </footer>
   );
