@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const DroneScene = dynamic(() => import("./DroneScene"), { ssr: false });
 
 const FIELDS = [
   { label: "MODE", value: "ACRO" },
@@ -46,16 +49,16 @@ export default function HudPanel() {
         <span className="tick text-phosphor">● rec</span>
       </div>
 
-      {/* artificial horizon */}
+      {/* 3D drone preview */}
       <div className="relative z-10 mt-4 h-40 overflow-hidden rounded-xl border border-line bg-[#04120b]">
-        <div className="horizon-roll absolute left-[-20%] top-1/2 h-[240%] w-[140%] -translate-y-1/2">
-          <div className="h-1/2 bg-gradient-to-b from-[#123a2a] to-[#04120b]" />
-          <div className="h-1/2 bg-gradient-to-b from-[#0b1a1f] to-[#04120b]" />
+        <DroneScene />
+        <div className="hud-grid pointer-events-none opacity-40" aria-hidden="true" />
+        <div className="font-hud pointer-events-none absolute bottom-2 left-2 text-[10px] text-phosphor/80">
+          HDG 214
         </div>
-        <div className="absolute left-1/2 top-1/2 h-px w-24 -translate-x-1/2 -translate-y-1/2 bg-phosphor/70" />
-        <div className="absolute left-1/2 top-1/2 h-6 w-px -translate-x-1/2 -translate-y-1/2 bg-phosphor/70" />
-        <div className="font-hud absolute bottom-2 left-2 text-[10px] text-phosphor/80">HDG 214</div>
-        <div className="font-hud absolute bottom-2 right-2 text-[10px] text-phosphor/80">{mm}:{ss}</div>
+        <div className="font-hud pointer-events-none absolute bottom-2 right-2 text-[10px] text-phosphor/80">
+          {mm}:{ss}
+        </div>
       </div>
 
       <div className="relative z-10 mt-4 grid grid-cols-2 gap-3 font-hud text-xs">
