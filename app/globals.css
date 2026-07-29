@@ -278,3 +278,64 @@ a {
   filter: drop-shadow(0 0 10px var(--tool-color, var(--phosphor)));
 }
 
+/* Hero headline entrance — staggered per-line reveal, independent of the
+   parent Reveal wrapper's own fade so the two effects layer naturally.
+   Runs once on mount via animation-fill-mode:forwards, not scroll-triggered,
+   since the hero is always in view on load. */
+.hero-line {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: hero-line-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-line-1 {
+  animation-delay: 0.15s;
+}
+
+.hero-line-2 {
+  animation-delay: 0.45s;
+}
+
+@keyframes hero-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slow gradient sheen sweeping across the bold statement line — a subtle
+   "premium tech" touch, not a constant distraction (long, gentle cycle). */
+.hero-shimmer {
+  background: linear-gradient(100deg, var(--ink) 42%, var(--phosphor) 50%, var(--ink) 58%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hero-shimmer-sweep 4.5s ease-in-out 1.3s infinite;
+}
+
+@keyframes hero-shimmer-sweep {
+  0% {
+    background-position: 220% 0;
+  }
+  45% {
+    background-position: -20% 0;
+  }
+  100% {
+    background-position: -20% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-shimmer {
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: var(--ink);
+    animation: none;
+  }
+}
