@@ -8,8 +8,13 @@ export default function Hero() {
         <span className="font-hud inline-block rounded-full border border-line-strong px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-phosphor">
           Tuning console for FPV pilots
         </span>
-        <h1 className="font-display mt-5 text-4xl font-semibold leading-[1.1] tracking-tight text-ink md:text-5xl">
-          Read your build like an OSD, not a spreadsheet.
+        <h1 className="font-display mt-5 leading-[1.1] tracking-tight">
+          <span className="hero-line hero-line-1 font-hud block text-lg font-medium uppercase tracking-[0.12em] text-phosphor sm:text-xl">
+            Turn data into performance
+          </span>
+          <span className="hero-line hero-line-2 hero-shimmer mt-1 block text-4xl font-semibold text-ink md:text-5xl">
+            Your drone can do more.
+          </span>
         </h1>
         <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
           OBIXCONFIG FPV turns PID tuning, blackbox logs, and build matching into
