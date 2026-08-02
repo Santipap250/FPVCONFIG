@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { calculatePid, applyAdjustment, type FlyingStyle, type PidAdjustment } from "@/lib/pidAdvisor";
 import { useBuildProfiles } from "@/lib/useBuildProfiles";
+import { useLocalStorage } from "@/lib/useLocalStorage";
+import type { SavedPreset } from "@/lib/presets";
 import ActiveBuildBanner from "./ActiveBuildBanner";
 
 const styles: { value: FlyingStyle; label: string }[] = [
@@ -15,21 +17,41 @@ const styles: { value: FlyingStyle; label: string }[] = [
   { value: "micro", label: "Micro" },
 ];
 
+const DEFAULTS = { propSizeInches: 5, motorKv: 1700, cells: 4, style: "freestyle" as FlyingStyle };
+const PRESETS_KEY = "saved-presets-v1";
+
+interface PidInputsState {
+  propSizeInches: number;
+  motorKv: number;
+  cells: number;
+  style: FlyingStyle;
+}
+
 export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustment?: PidAdjustment }) {
   const { activeProfile } = useBuildProfiles();
-  const [propSizeInches, setPropSizeInches] = useState(5);
-  const [motorKv, setMotorKv] = useState(1700);
-  const [cells, setCells] = useState(4);
-  const [style, setStyle] = useState<FlyingStyle>("freestyle");
+  // Remembers the pilot's last inputs across visits — independent of Active
+  // Build, for quick standalone sessions without needing a saved build.
+  const [inputs, setInputs] = useLocalStorage<PidInputsState>("pid-advisor-inputs-v1", DEFAULTS);
+  const [saved, setSaved] = useLocalStorage<SavedPreset[]>(PRESETS_KEY, []);
   const [copied, setCopied] = useState(false);
+  const [savedNotice, setSavedNotice] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
+
+  const { propSizeInches, motorKv, cells, style } = inputs;
+  const setField = <K extends keyof PidInputsState>(key: K, value: PidInputsState[K]) =>
+    setInputs({ ...inputs, [key]: value });
 
   const loadFromActiveBuild = () => {
     if (!activeProfile) return;
-    if (activeProfile.frameSizeInches) setPropSizeInches(activeProfile.frameSizeInches);
-    if (activeProfile.motorKv) setMotorKv(activeProfile.motorKv);
-    if (activeProfile.batteryCells) setCells(activeProfile.batteryCells);
-    if (activeProfile.flyingStyle) setStyle(activeProfile.flyingStyle);
+    setInputs({
+      propSizeInches: activeProfile.frameSizeInches ?? propSizeInches,
+      motorKv: activeProfile.motorKv ?? motorKv,
+      cells: activeProfile.batteryCells ?? cells,
+      style: activeProfile.flyingStyle ?? style,
+    });
   };
+
+  const resetToDefaults = () => setInputs(DEFAULTS);
 
   const baseResult = useMemo(
     () => calculatePid({ propSizeInches, motorKv, cells, style }),
@@ -49,6 +71,21 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
     } catch {
       setCopied(false);
     }
+  };
+
+  const handleSavePreset = () => {
+    const defaultName = `PID ${propSizeInches}" ${styles.find((s) => s.value === style)?.label ?? style}`;
+    const entry: SavedPreset = {
+      id: `${Date.now()}`,
+      name: nameDraft.trim() || defaultName,
+      createdAt: new Date().toISOString(),
+      cliSnippet: result.cliSnippet,
+      buildProfileName: activeProfile?.name,
+    };
+    setSaved([entry, ...saved].slice(0, 20));
+    setNameDraft("");
+    setSavedNotice(true);
+    setTimeout(() => setSavedNotice(false), 2000);
   };
 
   return (
@@ -72,15 +109,24 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
       <div className="rounded-2xl border border-line-strong bg-bg-panel/70 p-6">
         <div className="flex items-center justify-between">
           <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">Build inputs</span>
-          {activeProfile && (
+          <div className="flex items-center gap-3">
+            {activeProfile && (
+              <button
+                type="button"
+                onClick={loadFromActiveBuild}
+                className="font-hud text-[11px] uppercase tracking-[0.15em] text-phosphor-dim hover:text-phosphor"
+              >
+                โหลดจาก Active Build
+              </button>
+            )}
             <button
               type="button"
-              onClick={loadFromActiveBuild}
-              className="font-hud text-[11px] uppercase tracking-[0.15em] text-phosphor-dim hover:text-phosphor"
+              onClick={resetToDefaults}
+              className="font-hud text-[11px] uppercase tracking-[0.15em] text-muted hover:text-ink"
             >
-              โหลดจาก Active Build
+              Reset
             </button>
-          )}
+          </div>
         </div>
 
         <label className="mt-5 block text-sm text-muted">
@@ -91,7 +137,7 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
             max={7}
             step={0.5}
             value={propSizeInches}
-            onChange={(e) => setPropSizeInches(Number(e.target.value))}
+            onChange={(e) => setField("propSizeInches", Number(e.target.value))}
             className="mt-2 w-full accent-phosphor"
           />
         </label>
@@ -104,7 +150,7 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
             max={3000}
             step={50}
             value={motorKv}
-            onChange={(e) => setMotorKv(Number(e.target.value))}
+            onChange={(e) => setField("motorKv", Number(e.target.value))}
             className="mt-2 w-full accent-phosphor"
           />
         </label>
@@ -116,7 +162,7 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
               <button
                 key={s}
                 type="button"
-                onClick={() => setCells(s)}
+                onClick={() => setField("cells", s)}
                 aria-pressed={cells === s}
                 className={`font-hud rounded-md border px-3 py-1.5 text-xs ${
                   cells === s ? "border-phosphor bg-phosphor/10 text-phosphor" : "border-line text-muted"
@@ -135,7 +181,7 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
               <button
                 key={s.value}
                 type="button"
-                onClick={() => setStyle(s.value)}
+                onClick={() => setField("style", s.value)}
                 aria-pressed={style === s.value}
                 className={`font-hud rounded-md border px-3 py-1.5 text-xs ${
                   style === s.value ? "border-phosphor bg-phosphor/10 text-phosphor" : "border-line text-muted"
@@ -146,6 +192,8 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
             ))}
           </div>
         </fieldset>
+
+        <p className="mt-5 text-xs text-muted">ค่าที่กรอกไว้จำอัตโนมัติในเครื่องนี้ กลับมาเปิดใหม่จะยังอยู่</p>
       </div>
 
       {/* Results */}
@@ -208,6 +256,27 @@ export default function PidAdvisorTool({ initialAdjustment }: { initialAdjustmen
           <pre className="font-hud mt-2 overflow-x-auto rounded-lg border border-line bg-[#04120b] p-4 text-xs leading-relaxed text-phosphor">
 {result.cliSnippet}
           </pre>
+        </div>
+
+        <div className="mt-5">
+          <span className="font-hud text-[11px] uppercase tracking-[0.15em] text-phosphor-dim">บันทึกเป็นพรีเซ็ตของฉัน</span>
+          <div className="mt-2 flex gap-2">
+            <input
+              type="text"
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              placeholder={`PID ${propSizeInches}" ${styles.find((s) => s.value === style)?.label ?? style}`}
+              className="w-full rounded-md border border-line bg-transparent px-3 py-2 text-sm text-ink placeholder:text-muted"
+            />
+            <button
+              type="button"
+              onClick={handleSavePreset}
+              className="font-hud shrink-0 rounded-md border border-line-strong px-4 py-2 text-xs uppercase tracking-[0.15em] text-phosphor hover:bg-phosphor hover:text-[#04140b]"
+            >
+              Save
+            </button>
+          </div>
+          {savedNotice && <p className="font-hud mt-2 text-xs text-phosphor">บันทึกแล้ว — ดูได้ที่ Smart Presets</p>}
         </div>
 
         <p className="mt-4 text-xs text-muted">
