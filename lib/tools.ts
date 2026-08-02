@@ -22,12 +22,12 @@ export const tools: Tool[] = [
     short: "Tuning direction from your flying style",
     description:
       "แนะนำทิศทางการจูนจากสไตล์การบิน เพื่อให้เริ่ม tuning ได้เร็วและแม่นขึ้น",
-    status: "beta",
-    chips: ["Baseline ตาม frame + prop", "Freestyle / Cinematic / Long range", "Export เป็น Betaflight CLI"],
+    status: "live",
+    chips: ["Baseline ตาม frame + prop", "6 สไตล์การบิน", "บันทึกเป็นพรีเซ็ตได้ทันที"],
     detail: [
-      "ป้อนสเปกเฟรม มอเตอร์ prop และสไตล์การบิน แล้วรับ baseline P/I/D/D_min ที่ควรเริ่มจูนจากตรงนั้น",
+      "ป้อนสเปกเฟรม มอเตอร์ prop และสไตล์การบิน แล้วรับ baseline P/I/D/D_min ที่ควรเริ่มจูนจากตรงนั้น ค่าที่กรอกจำไว้อัตโนมัติในเครื่องนี้",
       "อธิบายเหตุผลของแต่ละค่าแบบอ่านง่าย พร้อมสูตรที่ตรวจสอบได้ ไม่ใช่ตัวเลขลอย ๆ",
-      "เชื่อมกับ Blackbox Analyzer เพื่อวนรอบจูนจากข้อมูลจริง (เร็ว ๆ นี้)",
+      "เชื่อมกับ Blackbox Analyzer จริงแล้ว (ส่งคำแนะนำปรับ D/P มาต่อยอดได้ทันที) และบันทึกผลลัพธ์เป็นพรีเซ็ตส่วนตัวได้จากหน้านี้เลย",
     ],
   },
   {
