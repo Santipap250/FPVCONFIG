@@ -5,6 +5,7 @@ import { tools } from "@/lib/tools";
 const siteName = "OBIXCONFIG FPV";
 const logoUrl = `${siteUrl}/brand/obix-symbol.png`;
 const facebookPageUrl = "https://www.facebook.com/banmysanti";
+const repositoryUrl = "https://github.com/Santipap250/FPVCONFIG";
 
 /**
  * Serializes a JSON-LD object for use in a <script type="application/ld+json">
@@ -48,6 +49,7 @@ export function webApplicationJsonLd() {
     operatingSystem: "Any (installable web app / PWA)",
     inLanguage: "th",
     isAccessibleForFree: true,
+    codeRepository: repositoryUrl,
     offers: {
       "@type": "Offer",
       price: "0",
