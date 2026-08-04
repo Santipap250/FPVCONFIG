@@ -14,6 +14,7 @@ import SmartPresetsWithParams from "@/components/SmartPresetsWithParams";
 import BlackboxAnalyzerTool from "@/components/BlackboxAnalyzerTool";
 import RecentToolTracker from "@/components/RecentToolTracker";
 import ToolIcon from "@/components/icons/ToolIcon";
+import { jsonLdScript, toolBreadcrumbJsonLd } from "@/lib/structuredData";
 
 // Tools with a real, working implementation. Anything not listed here still
 // gets an honest "in development" notice instead of a fake calculator.
@@ -57,6 +58,10 @@ export default async function ToolPage({
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(toolBreadcrumbJsonLd(tool.title, tool.slug))}
+      />
       <RecentToolTracker slug={tool.slug} />
       <SiteHeader />
       <main className="container-hud py-14">
