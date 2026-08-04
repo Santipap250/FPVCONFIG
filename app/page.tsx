@@ -8,10 +8,24 @@ import FaqSection from "@/components/FaqSection";
 import DownloadSection from "@/components/DownloadSection";
 import SiteFooter from "@/components/SiteFooter";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import {
+  jsonLdScript,
+  organizationJsonLd,
+  websiteJsonLd,
+  webApplicationJsonLd,
+  faqPageJsonLd,
+} from "@/lib/structuredData";
 
 export default function Home() {
   return (
     <>
+      {/* Structured data for the home page: describes the org, the site,
+          the app itself, and the FAQ shown below in FaqSection. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(organizationJsonLd())} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(websiteJsonLd())} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(webApplicationJsonLd())} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(faqPageJsonLd())} />
+
       <ServiceWorkerRegister />
       <SiteHeader />
       <main>
