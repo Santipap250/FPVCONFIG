@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { siteUrl } from "@/lib/site";
+import AnimatedBackground from "@/components/AnimatedBackground";
 import BottomNav from "@/components/BottomNav";
 
 const inter = localFont({
@@ -94,6 +95,7 @@ export default function RootLayout({
   return (
     <html lang="th" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${notoSansThai.variable}`}>
       <body>
+        <AnimatedBackground />
         {children}
         <BottomNav />
       </body>
