@@ -22,7 +22,7 @@ export default function DownloadSection() {
                 Review the tools
               </a>
               <a
-                href="https://github.com"
+                href="https://github.com/Santipap250/FPVCONFIG.git"
                 className="font-hud rounded-md border border-line-strong px-5 py-3 text-xs uppercase tracking-[0.15em] text-ink transition-colors hover:border-phosphor hover:text-phosphor"
               >
                 Push to GitHub
