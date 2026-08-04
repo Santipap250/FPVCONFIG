@@ -8,7 +8,7 @@ export default function DownloadSection() {
           <div>
             <span className="font-hud text-xs uppercase tracking-[0.2em] text-phosphor-dim">Delivery ready</span>
             <h2 className="font-display mt-3 text-3xl font-semibold text-ink md:text-4xl">
-              A foundation ready for its own GitHub repository
+              Open source on GitHub
             </h2>
             <p className="mt-4 max-w-lg text-muted">
               Next.js, TypeScript, and Tailwind on a single design-token system —
@@ -22,10 +22,12 @@ export default function DownloadSection() {
                 Review the tools
               </a>
               <a
-                href="https://github.com/Santipap250/FPVCONFIG.git"
+                href="https://github.com/Santipap250/FPVCONFIG"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-hud rounded-md border border-line-strong px-5 py-3 text-xs uppercase tracking-[0.15em] text-ink transition-colors hover:border-phosphor hover:text-phosphor"
               >
-                Push to GitHub
+                View on GitHub
               </a>
             </div>
           </div>
@@ -33,9 +35,9 @@ export default function DownloadSection() {
           <div className="space-y-4">
             <div className="rounded-xl border border-line px-5 py-4">
               <span className="font-hud text-[11px] uppercase tracking-[0.15em] text-phosphor-dim">
-                Suggested repo name
+                Repository
               </span>
-              <strong className="font-display mt-1 block text-lg text-ink">OBIXCONFIGFPV</strong>
+              <strong className="font-display mt-1 block text-lg text-ink">Santipap250/FPVCONFIG</strong>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-line px-4 py-3">
