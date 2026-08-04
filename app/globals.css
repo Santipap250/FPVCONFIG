@@ -69,20 +69,27 @@ body {
 /* Persistent ambient background — applied once here so every page gets it
    automatically, not just the homepage. Soft glows drawn from the same
    6-instrument color palette used across tool cards, plus a barely-there
-   hairline grid for texture. Fixed + inset:0 (never width:100vw) so it
-   can't cause horizontal overflow, and z-index:-1 inside body's own
+   hairline grid for texture. Fixed + inset (never width:100vw) so it
+   can't cause horizontal overflow, and negative z-index inside body's own
    stacking context (position:relative + z-index:0 above) keeps it behind
-   all real content without ever covering it. */
+   all real content without ever covering it.
+
+   Two layers stacked:
+   - ::before — the glow field + grid, slowly drifting (inset:-6% gives it
+     room to pan/scale without ever exposing an edge).
+   - ::after  — a single phosphor "radar sweep" rotating from top-center,
+     the one signature ambient motion, kept subtle via mix-blend + mask so
+     it reads as cockpit-scanner atmosphere, not a spinning gradient. */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
-  z-index: -1;
+  inset: -6%;
+  z-index: -2;
   pointer-events: none;
   background:
-    radial-gradient(640px 420px at 8% -8%, rgba(56, 242, 176, 0.07), transparent 60%),
-    radial-gradient(560px 380px at 96% 8%, rgba(199, 125, 255, 0.06), transparent 60%),
-    radial-gradient(520px 400px at 50% 105%, rgba(79, 209, 255, 0.05), transparent 60%),
+    radial-gradient(640px 420px at 8% -8%, rgba(56, 242, 176, 0.09), transparent 60%),
+    radial-gradient(560px 380px at 96% 8%, rgba(199, 125, 255, 0.08), transparent 60%),
+    radial-gradient(520px 400px at 50% 105%, rgba(79, 209, 255, 0.07), transparent 60%),
     linear-gradient(to right, var(--line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--line) 1px, transparent 1px);
   background-size:
@@ -92,6 +99,54 @@ body::before {
     48px 48px,
     48px 48px;
   mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 45%, transparent 100%);
+  animation: aurora-drift 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transform-origin: 50% 0%;
+  background: conic-gradient(
+    from 0deg at 50% 0%,
+    transparent 0deg,
+    rgba(124, 255, 178, 0.16) 6deg,
+    rgba(124, 255, 178, 0.03) 22deg,
+    transparent 48deg,
+    transparent 360deg
+  );
+  mask-image: radial-gradient(ellipse 85% 55% at 50% 0%, black 40%, transparent 100%);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  animation: radar-sweep 16s linear infinite;
+  will-change: transform;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-1.4%, 1.6%, 0) scale(1.035);
+  }
+  100% {
+    transform: translate3d(1.2%, -1%, 0) scale(1.02);
+  }
+}
+
+@keyframes radar-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 767px) {
+  body::after {
+    opacity: 0.35;
+  }
 }
 
 @media (max-width: 767px) {
@@ -173,10 +228,18 @@ a {
     transform: none;
     transition: none;
   }
-  * {
+  /* Bare `*` does not reach generated content, and the ambient background
+     (body::before/::after) is exactly the kind of large, looping motion
+     reduced-motion users want stopped — so it's targeted explicitly here. */
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+  body::after {
+    opacity: 0;
   }
 }
 
