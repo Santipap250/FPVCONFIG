@@ -7,6 +7,7 @@ import DashboardTool from "@/components/DashboardTool";
 export const metadata: Metadata = {
   title: "Dashboard",
   description: "Command center ของ OBIXCONFIG FPV — build profile, presets, flight readiness, และเครื่องมือทั้งหมดในที่เดียว",
+  alternates: { canonical: "/dashboard" },
 };
 
 export default function DashboardPage() {
