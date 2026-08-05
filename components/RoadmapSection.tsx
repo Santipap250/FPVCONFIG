@@ -22,7 +22,7 @@ const phases = [
   {
     phase: "Phase 4",
     title: "What's next",
-    copy: "รองรับไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
+    copy: "ถอดกราฟ noise/tracking error จากเฟรมไบนารีของไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify — ตอนนี้อ่านได้แค่ header), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
     done: false,
   },
 ];

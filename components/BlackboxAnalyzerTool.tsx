@@ -11,6 +11,11 @@ import {
   type BlackboxResult,
   type SavedAnalysis,
 } from "@/lib/blackboxAnalyzer";
+import {
+  detectBlackboxFileKind,
+  parseBlackboxHeader,
+  type BlackboxHeaderInfo,
+} from "@/lib/blackboxHeader";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import { useBuildProfiles } from "@/lib/useBuildProfiles";
 import ActiveBuildBanner from "./ActiveBuildBanner";
@@ -37,6 +42,8 @@ function spectrumToPath(magnitudes: number[]): string {
 export default function BlackboxAnalyzerTool() {
   const { activeProfile } = useBuildProfiles();
   const [result, setResult] = useState<BlackboxResult | null>(null);
+  const [headerInfo, setHeaderInfo] = useState<BlackboxHeaderInfo | null>(null);
+  const [showRawHeader, setShowRawHeader] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +66,8 @@ export default function BlackboxAnalyzerTool() {
   const handleFile = useCallback((file: File) => {
     setError(null);
     setResult(null);
+    setHeaderInfo(null);
+    setShowRawHeader(false);
     setFileName(file.name);
     setIsLoading(true);
 
@@ -66,8 +75,20 @@ export default function BlackboxAnalyzerTool() {
     reader.onload = () => {
       try {
         const text = String(reader.result ?? "");
-        const parsed = parseBlackboxCsv(text);
-        setResult(parsed);
+        const kind = detectBlackboxFileKind(text);
+
+        if (kind === "raw-header") {
+          // Raw .bbl: header block only (firmware/PIDs/rates/filters as
+          // logged), not the binary gyro/motor frames — see lib/blackboxHeader.ts
+          // for why the frame data itself isn't decoded here.
+          setHeaderInfo(parseBlackboxHeader(text));
+        } else if (kind === "csv") {
+          setResult(parseBlackboxCsv(text));
+        } else {
+          throw new Error(
+            "อ่านไฟล์นี้ไม่ออก — รองรับ CSV ที่ decode แล้วจาก Blackbox Explorer/blackbox_decode (วิเคราะห์เต็มรูปแบบ) หรือไฟล์ .bbl ดิบ (อ่านได้เฉพาะ header: firmware/PID/rates/filter)"
+          );
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : "อ่านไฟล์ไม่สำเร็จ");
       } finally {
@@ -103,25 +124,26 @@ export default function BlackboxAnalyzerTool() {
         <p className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">
           ลากไฟล์มาวาง หรือเลือกไฟล์
         </p>
-        <p className="font-display mt-2 text-lg text-ink">อัปโหลด Blackbox CSV</p>
+        <p className="font-display mt-2 text-lg text-ink">อัปโหลด Blackbox log</p>
         <p className="mt-2 text-sm text-muted">
-          ต้องเป็นไฟล์ .csv ที่ decode แล้วจาก Blackbox Explorer หรือ blackbox_decode
-          (ยังไม่รองรับไฟล์ .bbl ดิบ — ต้อง export เป็น CSV ก่อน)
+          ไฟล์ .csv ที่ decode แล้ว (จาก Blackbox Explorer หรือ blackbox_decode) จะได้กราฟ noise/tracking
+          error เต็มรูปแบบ · ไฟล์ .bbl ดิบตอนนี้อ่านได้เฉพาะ header (firmware, PID, rates, filter ที่ log ไว้) —
+          ยังไม่ decode กราฟจากเฟรมข้อมูลไบนารี
         </p>
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           className="font-hud mt-4 rounded-md border border-line-strong px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-phosphor hover:bg-phosphor hover:text-[#04140b]"
         >
-          เลือกไฟล์ .csv
+          เลือกไฟล์
         </button>
         <input
           ref={inputRef}
           type="file"
-          accept=".csv,text/csv"
+          accept=".csv,.bbl,.bfl,text/csv"
           onChange={onInputChange}
           className="hidden"
-          aria-label="เลือกไฟล์ .csv สำหรับวิเคราะห์ Blackbox"
+          aria-label="เลือกไฟล์ .csv หรือ .bbl สำหรับวิเคราะห์ Blackbox"
         />
         {fileName && <p className="font-hud mt-3 text-xs text-muted">ไฟล์: {fileName}</p>}
         <p className="mt-4 text-xs text-muted">
@@ -134,6 +156,72 @@ export default function BlackboxAnalyzerTool() {
       {error && (
         <div className="mt-6 rounded-xl border border-danger/40 bg-danger/5 px-5 py-4 text-sm text-danger">
           {error}
+        </div>
+      )}
+
+      {headerInfo && (
+        <div className="mt-8 space-y-4">
+          <div className="rounded-xl border border-amber/40 bg-amber/5 px-5 py-4 text-sm text-amber">
+            อ่านได้เฉพาะ header ของไฟล์ .bbl ดิบนี้ (firmware/PID/rates/filter ตอน log) — การถอดกราฟ
+            noise/tracking error จากเฟรมข้อมูลไบนารีจริงยังไม่รองรับ ถ้าต้องการกราฟเต็มรูปแบบ ให้เปิดไฟล์นี้ใน
+            Blackbox Explorer แล้ว export เป็น .csv ก่อนอัปโหลดใหม่
+            {headerInfo.logCount > 1 && (
+              <> · ไฟล์นี้มีมากกว่า 1 flight log ({headerInfo.logCount} รายการ) header ที่แสดงคือของ log แรกเท่านั้น</>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-line-strong bg-bg-panel/70 p-6">
+            <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">Log info</span>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {(
+                [
+                  ["Firmware", headerInfo.summary.firmwareRevision],
+                  ["Board", headerInfo.summary.board],
+                  ["Craft name", headerInfo.summary.craftName],
+                  ["Looptime", headerInfo.summary.loopTimeUs ? `${headerInfo.summary.loopTimeUs} µs` : null],
+                  ["Roll PID", headerInfo.summary.rollPID],
+                  ["Pitch PID", headerInfo.summary.pitchPID],
+                  ["Yaw PID", headerInfo.summary.yawPID],
+                  ["Rates", headerInfo.summary.rates],
+                  ["Gyro lowpass", headerInfo.summary.gyroLowpassHz ? `${headerInfo.summary.gyroLowpassHz} Hz` : null],
+                  ["D-term lowpass", headerInfo.summary.dtermLowpassHz ? `${headerInfo.summary.dtermLowpassHz} Hz` : null],
+                ] as const
+              )
+                .filter(([, value]) => value !== null)
+                .map(([label, value]) => (
+                  <div key={label} className="rounded-lg border border-line px-4 py-3">
+                    <p className="font-hud text-[10px] uppercase tracking-[0.15em] text-muted">{label}</p>
+                    <p className="font-hud mt-1 text-sm text-ink">{value}</p>
+                  </div>
+                ))}
+            </div>
+            {Object.values(headerInfo.summary).every((v) => v === null) && (
+              <p className="mt-2 text-sm text-muted">
+                ไม่พบชื่อ field ที่รู้จักในไฟล์นี้ (ชื่อ field ต่างกันไปตามเวอร์ชัน firmware) — ดูค่าดิบทั้งหมดด้านล่าง
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowRawHeader((v) => !v)}
+              className="font-hud mt-4 text-xs uppercase tracking-[0.15em] text-phosphor-dim hover:text-phosphor"
+            >
+              {showRawHeader ? "ซ่อน" : "ดู"} header ดิบทั้งหมด ({headerInfo.headerLineCount} fields)
+            </button>
+            {showRawHeader && (
+              <div className="mt-3 max-h-80 overflow-y-auto rounded-lg border border-line">
+                <table className="w-full text-left text-xs">
+                  <tbody>
+                    {Object.entries(headerInfo.raw).map(([key, value]) => (
+                      <tr key={key} className="border-b border-line last:border-0">
+                        <td className="font-hud px-3 py-1.5 text-muted">{key}</td>
+                        <td className="px-3 py-1.5 text-ink">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
