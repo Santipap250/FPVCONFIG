@@ -42,7 +42,7 @@ export const tools: Tool[] = [
     detail: [
       "อัปโหลดไฟล์ CSV ที่ decode แล้วจาก Blackbox Explorer หรือ blackbox_decode วิเคราะห์ในเบราว์เซอร์ทันที ไม่อัปโหลดขึ้น server",
       "คำนวณ RMS tracking error, noise spectrum จาก FFT จริงต่อแกน (roll/pitch/yaw), motor saturation และแรงดันแบตจากข้อมูลจริงในไฟล์",
-      "ยังไม่รองรับไฟล์ .bbl ดิบและยังไม่มี step response analysis — เชื่อมกับ PID Advisor เป็นเฟสถัดไป",
+      "อัปโหลดไฟล์ .bbl ดิบได้แล้ว — อ่าน header (firmware, PID, rates, filter ที่ log ไว้ตอนบิน) ส่วนกราฟ noise/tracking error เต็มรูปแบบจากเฟรมข้อมูลไบนารียังไม่ decode (รอตัวอย่างไฟล์จริงมา verify) และยังไม่มี step response analysis",
     ],
   },
   {
