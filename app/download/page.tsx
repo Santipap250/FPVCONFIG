@@ -7,6 +7,7 @@ import Reveal from "@/components/Reveal";
 export const metadata: Metadata = {
   title: "Download",
   description: "วิธีติดตั้ง OBIXCONFIG FPV เป็นแอพผ่าน PWA บนมือถือและเดสก์ท็อป",
+  alternates: { canonical: "/download" },
 };
 
 const platforms = [
