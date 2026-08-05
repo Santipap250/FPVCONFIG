@@ -7,6 +7,7 @@ import FaqSection from "@/components/FaqSection";
 export const metadata: Metadata = {
   title: "FAQ",
   description: "คำถามที่พบบ่อยเกี่ยวกับ OBIXCONFIG FPV",
+  alternates: { canonical: "/faq" },
 };
 
 export default function FaqPage() {
