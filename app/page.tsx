@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import Hero from "@/components/Hero";
 import TrustSection from "@/components/TrustSection";
@@ -15,6 +16,14 @@ import {
   webApplicationJsonLd,
   faqPageJsonLd,
 } from "@/lib/structuredData";
+
+// The other routes each set their own `alternates.canonical`; the home
+// page didn't have a metadata export at all before, so canonical was never
+// declared for "/" specifically — it just inherited the root layout's
+// defaults with no explicit self-reference.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   return (
