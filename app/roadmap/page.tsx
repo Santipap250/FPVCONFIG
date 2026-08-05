@@ -10,6 +10,7 @@ import { tools, statusLabel } from "@/lib/tools";
 export const metadata: Metadata = {
   title: "Roadmap",
   description: "แผนพัฒนาและสถานะจริงของแต่ละเครื่องมือใน OBIXCONFIG FPV",
+  alternates: { canonical: "/roadmap" },
 };
 
 export default function RoadmapPage() {
