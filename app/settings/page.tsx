@@ -7,6 +7,7 @@ import SettingsTool from "@/components/SettingsTool";
 export const metadata: Metadata = {
   title: "Settings",
   description: "จัดการข้อมูลที่เก็บไว้ในเครื่องสำหรับ OBIXCONFIG FPV",
+  alternates: { canonical: "/settings" },
 };
 
 export default function SettingsPage() {
