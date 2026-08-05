@@ -7,6 +7,7 @@ import Reveal from "@/components/Reveal";
 export const metadata: Metadata = {
   title: "About",
   description: "ที่มาและแนวทางของ OBIXCONFIG FPV — เครื่องมือ tuning สำหรับนักบิน FPV",
+  alternates: { canonical: "/about" },
 };
 
 const principles = [
