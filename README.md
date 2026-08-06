@@ -71,11 +71,15 @@ Vercel auto-detects Next.js — no custom build/start commands needed.
 
 ## Honest status of each tool
 All 6 tools are real, working, implemented components — not mockups or
-placeholder status pages. PID Advisor and Flight Readiness are `live`;
-Blackbox Analyzer, Build Helper, Rates Visualizer, and Smart Presets are
-`beta`. `/tools/[slug]` pages state each tool's real status plainly.
-Update `lib/tools.ts` status field as beta tools get enough real-world use to
-promote to live.
+placeholder status pages. PID Advisor, Flight Readiness, Build Helper, Rates
+Visualizer, and Smart Presets are `live`; Blackbox Analyzer is `beta` (see
+below — it has a real, disclosed gap, not just unproven reliability).
+`/tools/[slug]` pages state each tool's real status plainly. Build Helper,
+Rates Visualizer, and Smart Presets were promoted from beta after a review
+confirmed: no undisclosed missing functionality, full test coverage of the
+core calculations, and Smart Presets/Rates Visualizer share the same
+calculation engines as the already-live PID Advisor rather than duplicating
+logic.
 
 **Blackbox Analyzer specifically:** full noise/tracking-error analysis works
 today for CSV exported from Blackbox Explorer / `blackbox_decode`. Raw `.bbl`
