@@ -52,7 +52,7 @@ export const tools: Tool[] = [
     title: "Build Helper",
     short: "Match frame, motor, battery, and feel",
     description: "วางภาพรวมการประกอบโดรนให้เข้ากับเฟรม มอเตอร์ แบต และฟีลบิน",
-    status: "beta",
+    status: "live",
     chips: ["Power-to-weight จากไฟฟ้าจริง", "เตือน ESC/มอเตอร์ไม่เข้ากัน", "จัดกลุ่มตามสไตล์การบิน"],
     detail: [
       "กรอก AUW เซลล์แบต และ current rating ของ ESC/มอเตอร์ แล้วดู power-to-weight (W/g) ที่คำนวณจากไฟฟ้าจริง",
@@ -67,7 +67,7 @@ export const tools: Tool[] = [
     title: "Rates Visualizer",
     short: "Feel your stick response before the field",
     description: "ทดลองฟีลคันเร่งและสติ๊กก่อนลงสนามจริง เพื่อหา setup ที่ถนัดที่สุด",
-    status: "beta",
+    status: "live",
     chips: ["กราฟ response แบบ real-time", "เทียบ rates หลายชุดพร้อมกัน", "สูตร Actual Rates ของ Betaflight จริง"],
     detail: [
       "ปรับ RC rate, super rate และ expo แล้วเห็นกราฟ stick-to-rotation ทันที",
@@ -97,7 +97,7 @@ export const tools: Tool[] = [
     title: "Smart Presets",
     short: "Starting points for every flying style",
     description: "พรีเซ็ตพื้นฐานสำหรับ freestyle, cinematic และ long range พร้อมต่อยอดได้",
-    status: "beta",
+    status: "live",
     chips: ["คำนวณจากเครื่องมือเดียวกับ PID Advisor", "Export เป็น Betaflight CLI", "บันทึกพรีเซ็ตของตัวเองในเครื่อง"],
     detail: [
       "คลังพรีเซ็ตเริ่มต้นสำหรับ freestyle, cinematic, long range และ micro คำนวณจาก engine เดียวกับ PID Advisor / Rates Visualizer",
