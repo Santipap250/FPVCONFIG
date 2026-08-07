@@ -17,7 +17,7 @@ export default function RoadmapPage() {
   return (
     <>
       <SiteHeader />
-      <main className="container-hud py-14">
+      <main id="main-content" tabIndex={-1} className="container-hud py-14">
         <PageHeader
           eyebrow="Roadmap"
           title="สถานะจริงของแต่ละเครื่องมือ"
