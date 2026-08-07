@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { siteUrl } from "@/lib/site";
 import BottomNav from "@/components/BottomNav";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = localFont({
   src: "./fonts/Inter.ttf",
@@ -99,6 +100,7 @@ export default function RootLayout({
       <body>
         {children}
         <BottomNav />
+        <SpeedInsights />
       </body>
     </html>
   );
