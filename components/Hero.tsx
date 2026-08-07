@@ -1,6 +1,5 @@
 import Reveal from "./Reveal";
 import HudPanel from "./HudPanel";
-import DashboardSummaryPanel from "./DashboardSummaryPanel";
 
 export default function Hero() {
   return (
@@ -80,10 +79,6 @@ export default function Hero() {
           />
           <HudPanel />
         </div>
-      </Reveal>
-
-      <Reveal delay={200} className="md:col-span-2">
-        <DashboardSummaryPanel />
       </Reveal>
     </section>
   );
