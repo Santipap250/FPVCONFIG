@@ -14,7 +14,7 @@ export default function FaqPage() {
   return (
     <>
       <SiteHeader />
-      <main className="container-hud py-14">
+      <main id="main-content" tabIndex={-1} className="container-hud py-14">
         <PageHeader eyebrow="FAQ" title="คำถามที่พบบ่อย" />
         <FaqSection />
       </main>
