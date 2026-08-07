@@ -78,6 +78,9 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "OBIXCONFIG FPV",
   },
+  verification: {
+    google: "Eyh1zNAgmJEbGr52OpkGTmradGijdm7KMIlOex-6ppQ",
+  },
 };
 
 export const viewport: Viewport = {
