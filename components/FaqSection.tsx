@@ -3,7 +3,7 @@ import { faqs } from "@/lib/faq";
 
 export default function FaqSection() {
   return (
-    <section id="faq" className="container-hud py-20">
+    <section id="faq" className="container-hud py-12 md:py-20">
       <Reveal>
         <span className="font-hud text-xs uppercase tracking-[0.2em] text-phosphor-dim">FAQ</span>
         <h2 className="font-display mt-3 max-w-xl text-3xl font-semibold text-ink md:text-4xl">

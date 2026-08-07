@@ -9,7 +9,7 @@ const pillars = [
 
 export default function DesignSystemSection() {
   return (
-    <section id="design" className="container-hud py-20">
+    <section id="design" className="container-hud py-12 md:py-20">
       <Reveal>
         <span className="font-hud text-xs uppercase tracking-[0.2em] text-phosphor-dim">Design system</span>
         <h2 className="font-display mt-3 max-w-xl text-3xl font-semibold text-ink md:text-4xl">

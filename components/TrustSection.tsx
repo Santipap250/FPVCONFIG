@@ -29,7 +29,7 @@ const proofs = [
 
 export default function TrustSection() {
   return (
-    <section className="container-hud py-16">
+    <section className="container-hud py-10 md:py-16">
       <Reveal>
         <span className="font-hud text-xs uppercase tracking-[0.2em] text-phosphor-dim">Proof, not promises</span>
         <h2 className="font-display mt-3 max-w-xl text-2xl font-semibold text-ink md:text-3xl">

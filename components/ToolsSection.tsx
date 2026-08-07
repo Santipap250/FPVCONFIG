@@ -11,7 +11,7 @@ export default function ToolsSection() {
   const active = tools.find((t) => t.slug === activeSlug) ?? tools[0];
 
   return (
-    <section id="tools" className="container-hud py-20">
+    <section id="tools" className="container-hud py-12 md:py-20">
       <Reveal>
         <span className="font-hud text-xs uppercase tracking-[0.2em] text-phosphor-dim">Core tools</span>
         <h2 className="font-display mt-3 max-w-xl text-3xl font-semibold text-ink md:text-4xl">

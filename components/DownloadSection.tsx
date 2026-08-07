@@ -2,7 +2,7 @@ import Reveal from "./Reveal";
 
 export default function DownloadSection() {
   return (
-    <section id="download" className="container-hud py-20">
+    <section id="download" className="container-hud py-12 md:py-20">
       <Reveal>
         <div className="grid gap-8 rounded-2xl border border-line-strong bg-bg-panel/70 p-8 md:grid-cols-[1.3fr_1fr] md:p-10">
           <div>

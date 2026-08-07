@@ -3,7 +3,7 @@ import HudPanel from "./HudPanel";
 
 export default function Hero() {
   return (
-    <section id="home" className="container-hud grid gap-10 pt-14 pb-20 md:grid-cols-2 md:items-center md:pt-20">
+    <section id="home" className="container-hud grid gap-10 pt-10 pb-10 md:grid-cols-2 md:items-center md:pt-20 md:pb-20">
       <Reveal>
         <span className="font-hud inline-block rounded-full border border-line-strong px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-phosphor">
           Tuning console for FPV pilots
