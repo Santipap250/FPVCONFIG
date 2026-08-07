@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -15,8 +15,28 @@ const navLinks = [
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
 
+  // Keyboard users expect Escape to close an open menu — the button toggle
+  // alone doesn't cover that.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-line/60 bg-bg/85 backdrop-blur-md">
+      {/* First focusable element on every page — lets keyboard/screen-reader
+          users jump straight past the nav instead of tabbing through it on
+          every single page. Hidden until it receives focus. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-phosphor focus:px-4 focus:py-2 focus:text-xs focus:font-semibold focus:uppercase focus:tracking-[0.15em] focus:text-[#04140b]"
+      >
+        ข้ามไปเนื้อหาหลัก
+      </a>
       <div className="container-hud flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-3" aria-label="OBIXCONFIG FPV, home">
           <span className="relative flex h-9 w-9 items-center justify-center">
