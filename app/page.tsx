@@ -37,7 +37,7 @@ export default function Home() {
 
       <ServiceWorkerRegister />
       <SiteHeader />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <Hero />
         <TrustSection />
         <ToolsSection />
