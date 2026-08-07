@@ -32,7 +32,7 @@ export default function AboutPage() {
   return (
     <>
       <SiteHeader />
-      <main className="container-hud py-14">
+      <main id="main-content" tabIndex={-1} className="container-hud py-14">
         <PageHeader
           eyebrow="About"
           title="เครื่องมือ FPV ที่อธิบายตัวเองได้ทุกตัวเลข"
