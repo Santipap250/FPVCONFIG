@@ -44,7 +44,7 @@ export default function DownloadPage() {
   return (
     <>
       <SiteHeader />
-      <main className="container-hud py-14">
+      <main id="main-content" tabIndex={-1} className="container-hud py-14">
         <PageHeader
           eyebrow="Download"
           title="ติดตั้งเป็นแอพผ่าน PWA"
