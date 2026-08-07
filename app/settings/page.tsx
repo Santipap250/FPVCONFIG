@@ -14,7 +14,7 @@ export default function SettingsPage() {
   return (
     <>
       <SiteHeader />
-      <main className="container-hud py-14">
+      <main id="main-content" tabIndex={-1} className="container-hud py-14">
         <PageHeader
           eyebrow="Settings"
           title="จัดการข้อมูลในเครื่องนี้"
