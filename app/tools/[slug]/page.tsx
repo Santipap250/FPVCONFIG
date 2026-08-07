@@ -65,7 +65,7 @@ export default async function ToolPage({
       />
       <RecentToolTracker slug={tool.slug} />
       <SiteHeader />
-      <main className="container-hud py-14">
+      <main id="main-content" tabIndex={-1} className="container-hud py-14">
         <Link href="/#tools" className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim hover:text-phosphor">
           ← All tools
         </Link>
