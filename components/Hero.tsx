@@ -1,5 +1,6 @@
 import Reveal from "./Reveal";
 import HudPanel from "./HudPanel";
+import DashboardSummaryPanel from "./DashboardSummaryPanel";
 
 export default function Hero() {
   return (
@@ -16,28 +17,6 @@ export default function Hero() {
             Your drone can do more.
           </span>
         </h1>
-
-        <a
-          href="https://www.facebook.com/banmysanti"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group mt-5 inline-flex items-center gap-3 rounded-xl border border-line-strong bg-bg-panel/60 py-2.5 pl-2.5 pr-4 transition-colors hover:border-phosphor"
-        >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1877F2]">
-            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-white" aria-hidden="true">
-              <path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z" />
-            </svg>
-          </span>
-          <span className="flex flex-col leading-tight">
-            <span className="font-hud text-sm font-semibold text-ink transition-colors group-hover:text-phosphor">
-              OBIXCONFIGLAB
-            </span>
-            <span className="font-hud text-[11px] uppercase tracking-[0.15em] text-muted">
-              ชุมชนนักบิน FPV บน Facebook
-            </span>
-          </span>
-        </a>
-
         <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
           OBIXCONFIG FPV turns PID tuning, blackbox logs, and build matching into
           the same clear, instrument-panel language you already read in goggles.
@@ -101,6 +80,10 @@ export default function Hero() {
           />
           <HudPanel />
         </div>
+      </Reveal>
+
+      <Reveal delay={200} className="md:col-span-2">
+        <DashboardSummaryPanel />
       </Reveal>
     </section>
   );

@@ -13,7 +13,7 @@ import ToolIcon from "./icons/ToolIcon";
 
 export default function DashboardTool() {
   const { activeProfile } = useBuildProfiles();
-  const { recentSlugs } = useRecentTools();
+  const { recentVisits } = useRecentTools();
   const [savedPresets] = useLocalStorage<SavedPreset[]>("saved-presets-v1", []);
   const [checklistState] = useLocalStorage<Record<string, boolean>>("flight-readiness-v1", {});
 
@@ -38,7 +38,7 @@ export default function DashboardTool() {
       })
     : null;
 
-  const recentTools = recentSlugs.map((slug) => tools.find((t) => t.slug === slug)).filter((t): t is (typeof tools)[number] => Boolean(t));
+  const recentTools = recentVisits.map((v) => tools.find((t) => t.slug === v.slug)).filter((t): t is (typeof tools)[number] => Boolean(t));
 
   return (
     <div className="mt-10 space-y-6">
