@@ -371,14 +371,26 @@ a {
 }
 
 /* Slow gradient sheen sweeping across the bold statement line — a subtle
-   "premium tech" touch, not a constant distraction (long, gentle cycle). */
+   "premium tech" touch, not a constant distraction (long, gentle cycle).
+   The transparent-text-clipped-to-gradient trick needs background-clip:text
+   support; without a guard, unsupported browsers render this text as
+   literally invisible (color:transparent with no visible fill) instead of
+   just losing the animation. var(--ink) is set unconditionally first as a
+   safe default, then only overridden inside @supports once we know the
+   clip will actually work. */
 .hero-shimmer {
-  background: linear-gradient(100deg, var(--ink) 42%, var(--phosphor) 50%, var(--ink) 58%);
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: hero-shimmer-sweep 4.5s ease-in-out 1.3s infinite;
+  color: var(--ink);
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .hero-shimmer {
+    background: linear-gradient(100deg, var(--ink) 42%, var(--phosphor) 50%, var(--ink) 58%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: hero-shimmer-sweep 4.5s ease-in-out 1.3s infinite;
+  }
 }
 
 @keyframes hero-shimmer-sweep {
