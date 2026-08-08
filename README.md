@@ -62,11 +62,13 @@ Linux.
 
 ## Accessibility testing (axe-core)
 **Update (Aug 8, 2026):** ran Lighthouse (mobile, via PageSpeed Insights —
-which uses an axe-core subset, ~50 of its ~96 rules) by hand against the 3
-pages with the most interactive controls: `/`, `/tools/pid`, `/tools/build`.
-All three scored 100/100 Accessibility. That's what the homepage "Proof, not
-promises" card and Roadmap Phase 3 now claim — 3 pages checked, not all 13,
-and via the Lighthouse subset, not the full axe-core rule set.
+which uses an axe-core subset, ~50 of its ~96 rules) by hand against **all
+13 routes**. All scored 100/100 Accessibility. One real issue was found and
+fixed along the way: `FlightReadinessTool.tsx` had category headings at
+`<h3>` with no `<h2>` in between the page's `<h1>` and them — a heading-order
+violation (axe rule `heading-order`), not just an "assess by hand" item.
+That's what the homepage "Proof, not promises" card and Roadmap Phase 3 now
+claim — 13/13 routes, Lighthouse subset, not yet the full axe-core rule set.
 
 The full local suite below still hasn't been run (this sandbox couldn't
 install a browser to run it) — running it is what would justify claiming
@@ -76,12 +78,13 @@ npx playwright install --with-deps chromium   # one-time setup
 npm run test:a11y
 ```
 This runs axe-core (via `@axe-core/playwright`) against every route in the
-sitemap, checking WCAG 2A/2AA, with the full rule set rather than
-Lighthouse's subset. If you run it and it passes, update the TrustSection/
-RoadmapSection copy to say "13/13 routes, full axe-core" instead of "3 pages,
-Lighthouse". If anything fails, fix that before changing the copy — don't
-widen the claim before the run backs it up. That's the mistake that put an
-unverified "0 violations" claim on the homepage in the first place.
+sitemap, checking WCAG 2A/2AA, with the full ~96-rule set rather than
+Lighthouse's ~50-rule subset. If you run it and it passes, update the
+TrustSection/RoadmapSection copy to say "13/13 routes, full axe-core"
+instead of "13/13 routes, Lighthouse". If anything fails, fix that before
+changing the copy — don't widen the claim before the run backs it up.
+That's the mistake that put an unverified "0 violations" claim on the
+homepage in the first place.
 
 ## Deploy (Vercel)
 Repo: https://github.com/Santipap250/FPVCONFIG
