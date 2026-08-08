@@ -16,13 +16,13 @@ const phases = [
   {
     phase: "Phase 3",
     title: "Product polish",
-    copy: "test suite, accessibility audit (0 violation), font subsetting, security patch — ตรวจสอบแล้วจริง",
+    copy: "test suite, การแก้ accessibility ด้วยมือ (skip link, keyboard nav, WCAG contrast ที่คำนวณจริง), font subsetting, security patch — automated axe-core audit ยังไม่ได้รันจริง อยู่ในแผน Phase 4",
     done: true,
   },
   {
     phase: "Phase 4",
     title: "What's next",
-    copy: "ถอดกราฟ noise/tracking error จากเฟรมไบนารีของไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify — ตอนนี้อ่านได้แค่ header), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
+    copy: "รัน automated accessibility audit ด้วย axe-core จริง (ตอนนี้ยังเป็นแค่การแก้ด้วยมือ), ถอดกราฟ noise/tracking error จากเฟรมไบนารีของไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify — ตอนนี้อ่านได้แค่ header), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
     done: false,
   },
 ];

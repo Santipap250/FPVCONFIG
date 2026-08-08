@@ -20,9 +20,9 @@ const proofs = [
     color: "build",
   },
   {
-    label: "ตรวจสอบแล้ว",
-    title: "0 ปัญหา ตามมาตรฐาน WCAG 2A/2AA",
-    copy: "ทุกหน้าผ่านการตรวจด้วย axe-core เอนจินเดียวกับที่ Lighthouse ใช้ให้คะแนน accessibility",
+    label: "ตรวจสอบด้วยมือจริง",
+    title: "Contrast, skip link, keyboard nav ตรวจแล้ว",
+    copy: "WCAG contrast ratio คำนวณจริงทุกสีที่ใช้ (ผ่าน AA), มี skip-to-content link และปิดเมนูด้วย Escape ได้ — automated axe-core audit อยู่ระหว่างตั้งระบบ ยังไม่ใช่ตัวเลขที่ยืนยันได้ 100%",
     color: "pid",
   },
 ] as const;
