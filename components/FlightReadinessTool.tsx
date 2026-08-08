@@ -89,7 +89,7 @@ export default function FlightReadinessTool() {
       <div className="mt-6 space-y-4">
         {checklist.map((category) => (
           <div key={category.id} className="rounded-2xl border border-line px-5 py-4">
-            <h3 className="font-display text-lg font-medium text-ink">{category.title}</h3>
+            <h2 className="font-display text-lg font-medium text-ink">{category.title}</h2>
             <ul className="mt-3 space-y-2">
               {category.items.map((item) => (
                 <li key={item.id}>
