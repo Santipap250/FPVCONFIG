@@ -60,6 +60,22 @@ Android/arm64 (e.g. building inside Termux). Use `npx next build --webpack`
 on that platform — it's not needed on Vercel, macOS, Windows, or regular
 Linux.
 
+## Accessibility testing (axe-core)
+`npm run test` does NOT run an accessibility audit — that's a separate,
+real browser-based test suite:
+```bash
+npx playwright install --with-deps chromium   # one-time setup
+npm run test:a11y
+```
+This runs axe-core (via `@axe-core/playwright`) against every route in the
+sitemap, checking WCAG 2A/2AA. Until this has actually been run and passed,
+don't restore any "0 violations" / "axe-core tested" copy on the site —
+that claim was on the homepage for a while without this suite existing to
+back it up, which was a real bug (see git history / Roadmap Phase 3 wording).
+The current homepage copy reflects only what was actually verified by hand:
+computed WCAG contrast ratios, a skip-to-content link, and Escape-to-close
+on the mobile menu.
+
 ## Deploy (Vercel)
 Repo: https://github.com/Santipap250/FPVCONFIG
 
