@@ -21,8 +21,8 @@ const proofs = [
   },
   {
     label: "ตรวจสอบแล้ว 8 ส.ค. 2569",
-    title: "Accessibility 100/100 (Lighthouse)",
-    copy: "ตรวจ 3 หน้าหลักที่มี interactive control เยอะสุด (หน้าแรก, PID Advisor, Build Helper) ผ่าน Google Lighthouse บนมือถือจริง ได้ 100/100 ทั้ง 3 หน้า — เป็น axe-core subset ~50 กฎ ยังไม่ใช่ full audit ครบทุกหน้า",
+    title: "Accessibility 100/100 — ครบทั้ง 13 หน้า",
+    copy: "ตรวจทุก route ในเว็บ (หน้า static 7 + เครื่องมือ 6) ผ่าน Google Lighthouse บนมือถือจริง ได้ 100/100 ทุกหน้า — เป็น axe-core subset ~50 กฎผ่าน Lighthouse ไม่ใช่ full 96-rule suite (โครงสร้างรัน full suite จริงพร้อมแล้ว รอรันบนเครื่องที่ install browser ได้)",
     color: "pid",
   },
 ] as const;

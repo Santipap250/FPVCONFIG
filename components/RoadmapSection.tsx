@@ -16,13 +16,13 @@ const phases = [
   {
     phase: "Phase 3",
     title: "Product polish",
-    copy: "test suite, skip link + keyboard nav ด้วยมือ, WCAG contrast คำนวณจริง, font subsetting, security patch, และ Lighthouse accessibility audit ผ่าน 100/100 ใน 3 หน้าหลักที่ตรวจแล้ว (8 ส.ค. 2569) — ตรวจสอบแล้วจริง",
+    copy: "test suite, skip link + keyboard nav ด้วยมือ, WCAG contrast คำนวณจริง, font subsetting, security patch, และ Lighthouse accessibility audit ผ่าน 100/100 ครบทั้ง 13 หน้า (8 ส.ค. 2569) — พบและแก้ heading order bug 1 จุดระหว่างตรวจ (Flight Readiness) — ตรวจสอบแล้วจริง",
     done: true,
   },
   {
     phase: "Phase 4",
     title: "What's next",
-    copy: "รัน Lighthouse accessibility audit ให้ครบทั้ง 13 หน้า (ตอนนี้ตรวจแล้ว 3 หน้า), รัน full axe-core suite ผ่าน Playwright จริง (มี e2e/a11y.spec.ts พร้อมแล้ว รอรันบนเครื่องที่ install browser ได้), ถอดกราฟ noise/tracking error จากเฟรมไบนารีของไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify — ตอนนี้อ่านได้แค่ header), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
+    copy: "รัน full axe-core suite ผ่าน Playwright จริง (มี e2e/a11y.spec.ts พร้อมแล้ว รอรันบนเครื่องที่ install browser ได้ — Lighthouse ที่ผ่านแล้วเป็นแค่ subset ~50 จาก 96 กฎ), ถอดกราฟ noise/tracking error จากเฟรมไบนารีของไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify — ตอนนี้อ่านได้แค่ header), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
     done: false,
   },
 ];
