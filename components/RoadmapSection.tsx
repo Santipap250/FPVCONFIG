@@ -22,7 +22,7 @@ const phases = [
   {
     phase: "Phase 4",
     title: "What's next",
-    copy: "รัน full axe-core suite ผ่าน Playwright จริง (มี e2e/a11y.spec.ts พร้อมแล้ว รอรันบนเครื่องที่ install browser ได้ — Lighthouse ที่ผ่านแล้วเป็นแค่ subset ~50 จาก 96 กฎ), ถอดกราฟ noise/tracking error จากเฟรมไบนารีของไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify — ตอนนี้อ่านได้แค่ header), step response analysis, และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
+    copy: "รัน full axe-core suite ผ่าน Playwright จริง (มี e2e/a11y.spec.ts พร้อมแล้ว รอรันบนเครื่องที่ install browser ได้ — Lighthouse ที่ผ่านแล้วเป็นแค่ subset ~50 จาก 96 กฎ), ถอดกราฟ noise/tracking error จากเฟรมไบนารีของไฟล์ .bbl ดิบ (รอตัวอย่างจริงมา verify — ตอนนี้อ่านได้แค่ header), และฟีเจอร์ตามเสียงตอบรับจากนักบินจริง",
     done: false,
   },
 ];

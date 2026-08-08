@@ -39,6 +39,25 @@ function spectrumToPath(magnitudes: number[]): string {
     .join(" ");
 }
 
+// Step response curves are normalized so 0 = pre-step level, 1 = target —
+// unlike the spectrum chart, the scale here is fixed (not auto-ranged to
+// the data) so overshoot above 1.0 and undershoot below it are always
+// visually comparable across axes and across different logs.
+const STEP_CHART_MAX = 1.3;
+function stepCurveToPath(curve: { tMs: number; response: number }[]): string {
+  if (curve.length === 0) return "";
+  const maxT = curve[curve.length - 1].tMs || 1;
+  return curve
+    .map((p, i) => {
+      const x = (p.tMs / maxT) * 200;
+      const clamped = Math.max(0, Math.min(STEP_CHART_MAX, p.response));
+      const y = 60 - (clamped / STEP_CHART_MAX) * 58;
+      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+const STEP_TARGET_LINE_Y = (60 - (1 / STEP_CHART_MAX) * 58).toFixed(1);
+
 export default function BlackboxAnalyzerTool() {
   const { activeProfile } = useBuildProfiles();
   const [result, setResult] = useState<BlackboxResult | null>(null);
@@ -326,6 +345,69 @@ export default function BlackboxAnalyzerTool() {
               คำนวณจาก FFT จริง (Hann window ก่อนแปลง) ไม่ใช่การประมาณ — แกน X คือความถี่ 0 ถึง Nyquist
               ของ log นี้ แกน Y คือ amplitude สัมพัทธ์ การจัดกลุ่มความถี่เป็นแนวทางคร่าว ๆ จากความรู้ทั่วไปของชุมชน
               FPV ไม่ใช่การวินิจฉัยที่แม่นยำ 100%
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-line-strong bg-bg-panel/70 p-6">
+            <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">
+              Step response ต่อแกน
+            </span>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              {(["roll", "pitch", "yaw"] as const).map((axis) => {
+                const sr = result.axisStats[axis].stepResponse;
+                if (!sr) {
+                  return (
+                    <div key={axis} className="rounded-lg border border-line px-4 py-3 text-sm text-muted">
+                      {AXIS_LABELS[axis]}: ไม่พบ stick step ที่ชัดเจนพอในไฟล์นี้ (ต้องมีอย่างน้อย 3 ครั้ง)
+                    </div>
+                  );
+                }
+                return (
+                  <div key={axis} className="rounded-lg border border-line px-4 py-3">
+                    <p className="font-display text-sm font-medium text-ink">{AXIS_LABELS[axis]}</p>
+                    {sr.averagedCurve && (
+                      <svg viewBox="0 0 200 60" className="mt-2 w-full" preserveAspectRatio="none">
+                        <line
+                          x1="0"
+                          y1={STEP_TARGET_LINE_Y}
+                          x2="200"
+                          y2={STEP_TARGET_LINE_Y}
+                          stroke="var(--line-strong)"
+                          strokeWidth="1"
+                          strokeDasharray="3,3"
+                        />
+                        <path
+                          d={stepCurveToPath(sr.averagedCurve)}
+                          fill="none"
+                          stroke="var(--tool-blackbox)"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    )}
+                    <p className="font-hud mt-2 text-xs text-muted">Rise time (90%)</p>
+                    <p className="font-hud text-lg text-phosphor">
+                      {sr.riseTimeMs !== null ? `${Math.round(sr.riseTimeMs)} ms` : "—"}
+                    </p>
+                    <p className="font-hud mt-2 text-xs text-muted">Overshoot</p>
+                    <p className="font-hud text-lg text-ink">
+                      {sr.overshootPercent !== null ? `${sr.overshootPercent.toFixed(1)}%` : "—"}
+                    </p>
+                    <p className="font-hud mt-2 text-xs text-muted">Settling time</p>
+                    <p className="font-hud text-lg text-ink">
+                      {sr.settlingTimeMs !== null ? `${Math.round(sr.settlingTimeMs)} ms` : "ยังไม่นิ่งในหน้าต่างที่วัด"}
+                    </p>
+                    <p className="mt-2 text-[11px] text-muted">
+                      จาก {sr.usableStepCount} step ที่ใช้ได้ ({sr.settledStepCount} step นิ่งภายใน 300ms)
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-4 text-xs text-muted">
+              ตรวจจับ stick step จริงที่เกิดขึ้นในไฟล์นี้ (ไม่ใช่ deconvolution แบบเต็มรูปแบบที่เครื่องมืออย่าง
+              PIDtoolbox ใช้) แล้ววัดว่า gyro ตอบสนองยังไงจริง ๆ — เส้นประคือเป้าหมาย (setpoint) เส้นทึบคือค่าเฉลี่ย
+              การตอบสนองจริงจากทุก step ที่เจอ ถ้าไม่เจอ step ที่ชัดพอ 3 ครั้งขึ้นไปในไฟล์ จะไม่แสดงผล
+              (ไม่เดาจากข้อมูลไม่พอ)
             </p>
           </div>
 
