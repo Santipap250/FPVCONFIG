@@ -20,9 +20,9 @@ const proofs = [
     color: "build",
   },
   {
-    label: "ตรวจสอบด้วยมือจริง",
-    title: "Contrast, skip link, keyboard nav ตรวจแล้ว",
-    copy: "WCAG contrast ratio คำนวณจริงทุกสีที่ใช้ (ผ่าน AA), มี skip-to-content link และปิดเมนูด้วย Escape ได้ — automated axe-core audit อยู่ระหว่างตั้งระบบ ยังไม่ใช่ตัวเลขที่ยืนยันได้ 100%",
+    label: "ตรวจสอบแล้ว 8 ส.ค. 2569",
+    title: "Accessibility 100/100 (Lighthouse)",
+    copy: "ตรวจ 3 หน้าหลักที่มี interactive control เยอะสุด (หน้าแรก, PID Advisor, Build Helper) ผ่าน Google Lighthouse บนมือถือจริง ได้ 100/100 ทั้ง 3 หน้า — เป็น axe-core subset ~50 กฎ ยังไม่ใช่ full audit ครบทุกหน้า",
     color: "pid",
   },
 ] as const;
