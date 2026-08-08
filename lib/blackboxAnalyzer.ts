@@ -1,9 +1,11 @@
 import { computeSpectrum, type SpectrumResult } from "./fft";
+import { analyzeStepResponse, type StepResponseMetrics } from "./stepResponse";
 
 export interface AxisStats {
   rmsTrackingError: number | null;
   jitter: number | null;
   spectrum: SpectrumResult | null;
+  stepResponse: StepResponseMetrics | null;
 }
 
 export type NoiseBand = "low" | "mid" | "high" | "unknown";
@@ -130,6 +132,12 @@ export function buildSavedAnalysis(
   buildProfileName: string | undefined,
   suggestionLabel: string | undefined
 ): SavedAnalysis {
+  // Same reasoning as the spectrum: keep the summary numbers, drop the
+  // point-array (averagedCurve) that's only needed for the on-screen chart,
+  // not for what gets persisted to localStorage.
+  const stripCurve = (sr: StepResponseMetrics | null): StepResponseMetrics | null =>
+    sr ? { ...sr, averagedCurve: null } : null;
+
   // Store only the peak frequency + band per axis, not the full spectrum
   // array — this stays a lightweight summary, consistent with the rest of
   // what gets saved here.
@@ -150,9 +158,9 @@ export function buildSavedAnalysis(
     motorSaturationPercent: result.motorSaturationPercent,
     batterySagPercent: result.battery?.sagPercent ?? null,
     axisSummary: {
-      roll: { ...result.axisStats.roll, spectrum: null },
-      pitch: { ...result.axisStats.pitch, spectrum: null },
-      yaw: { ...result.axisStats.yaw, spectrum: null },
+      roll: { ...result.axisStats.roll, spectrum: null, stepResponse: stripCurve(result.axisStats.roll.stepResponse) },
+      pitch: { ...result.axisStats.pitch, spectrum: null, stepResponse: stripCurve(result.axisStats.pitch.stepResponse) },
+      yaw: { ...result.axisStats.yaw, spectrum: null, stepResponse: stripCurve(result.axisStats.yaw.stepResponse) },
     },
     noisePeaks,
     suggestionLabel,
@@ -285,6 +293,16 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
 
   const gyroSeries: number[][] = [[], [], []];
   const errorSeries: number[][] = [[], [], []];
+  // Dedicated, strictly-aligned (time, setpoint, gyro) triples per axis for
+  // step response analysis — pushed together only on rows where both gyro
+  // AND setpoint are present and finite, so index k always means the same
+  // moment across all three arrays. gyroSeries above doesn't guarantee that
+  // (it pushes whenever gyro alone is valid), which is fine for the RMS/FFT
+  // stats that don't care about row-to-row alignment, but would silently
+  // misalign a step-response window if reused here.
+  const stepTime: number[][] = [[], [], []];
+  const stepSetpoint: number[][] = [[], [], []];
+  const stepGyro: number[][] = [[], [], []];
   const motorSeries: number[][] = motorIdxs.map(() => []);
   const vbatSeries: number[] = [];
   // Synchronized same-row pairs (motor throttle level, combined gyro
@@ -298,11 +316,13 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
   for (let row = 0; row < dataLines.length; row += stride) {
     const cells = dataLines[row].split(",");
 
+    let t: number | null = null;
     if (timeIdx !== -1) {
-      const t = Number(cells[timeIdx]);
-      if (Number.isFinite(t)) {
-        if (firstTime === null) firstTime = t;
-        lastTime = t;
+      const parsedT = Number(cells[timeIdx]);
+      if (Number.isFinite(parsedT)) {
+        t = parsedT;
+        if (firstTime === null) firstTime = parsedT;
+        lastTime = parsedT;
       }
     }
 
@@ -318,7 +338,14 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
       rowGyro[axis] = g;
       if (sIdx !== -1) {
         const s = Number(cells[sIdx]);
-        if (Number.isFinite(s)) errorSeries[axis].push(s - g);
+        if (Number.isFinite(s)) {
+          errorSeries[axis].push(s - g);
+          if (t !== null && firstTime !== null) {
+            stepTime[axis].push((t - firstTime) / 1_000_000);
+            stepSetpoint[axis].push(s);
+            stepGyro[axis].push(g);
+          }
+        }
       }
     }
 
@@ -356,9 +383,9 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
       : null;
 
   const axisStats = {
-    roll: computeAxisStats(gyroSeries[0], errorSeries[0], effectiveSampleRateHz),
-    pitch: computeAxisStats(gyroSeries[1], errorSeries[1], effectiveSampleRateHz),
-    yaw: computeAxisStats(gyroSeries[2], errorSeries[2], effectiveSampleRateHz),
+    roll: computeAxisStats(gyroSeries[0], errorSeries[0], effectiveSampleRateHz, stepTime[0], stepSetpoint[0], stepGyro[0]),
+    pitch: computeAxisStats(gyroSeries[1], errorSeries[1], effectiveSampleRateHz, stepTime[1], stepSetpoint[1], stepGyro[1]),
+    yaw: computeAxisStats(gyroSeries[2], errorSeries[2], effectiveSampleRateHz, stepTime[2], stepSetpoint[2], stepGyro[2]),
   };
 
   let motorSaturationPercent: number | null = null;
@@ -403,8 +430,15 @@ export function parseBlackboxCsv(text: string): BlackboxResult {
   };
 }
 
-function computeAxisStats(gyro: number[], error: number[], sampleRateHz: number | null): AxisStats {
-  if (gyro.length < 2) return { rmsTrackingError: null, jitter: null, spectrum: null };
+function computeAxisStats(
+  gyro: number[],
+  error: number[],
+  sampleRateHz: number | null,
+  stepTime: number[],
+  stepSetpoint: number[],
+  stepGyro: number[]
+): AxisStats {
+  if (gyro.length < 2) return { rmsTrackingError: null, jitter: null, spectrum: null, stepResponse: null };
   const diffs: number[] = [];
   for (let i = 1; i < gyro.length; i++) diffs.push(Math.abs(gyro[i] - gyro[i - 1]));
 
@@ -413,10 +447,12 @@ function computeAxisStats(gyro: number[], error: number[], sampleRateHz: number 
   const meanGyro = mean(gyro);
   const centered = gyro.map((v) => v - meanGyro);
   const spectrum = sampleRateHz ? computeSpectrum(centered, sampleRateHz) : null;
+  const stepResponse = analyzeStepResponse(stepTime, stepSetpoint, stepGyro);
 
   return {
     rmsTrackingError: error.length > 0 ? rms(error) : null,
     jitter: mean(diffs),
     spectrum,
+    stepResponse,
   };
 }
