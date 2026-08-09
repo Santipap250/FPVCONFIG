@@ -7,7 +7,7 @@ under one shared design system.
 ## Stack
 - Next.js 16 (App Router) + TypeScript
 - Tailwind CSS v4 (CSS-token based theme, see `app/globals.css`)
-- Self-hosted variable fonts (Inter, Space Grotesk, JetBrains Mono — OFL licensed, no external font fetch at build or runtime)
+- Self-hosted fonts as WOFF2 (Inter, Space Grotesk, JetBrains Mono, Noto Sans Thai — OFL licensed, no external font fetch at build or runtime; converted from TTF on Aug 9, 2026, cutting total font weight from ~406 KB to ~175 KB — see "Performance" below)
 - Manual PWA: `public/manifest.webmanifest` + `public/sw.js`, registered from `components/ServiceWorkerRegister.tsx`
 - Vitest for unit tests on the calculation-heavy `lib/` modules
 
@@ -128,14 +128,38 @@ predictor/encoding logic against, so it isn't attempted blind. See
 - No SEO files → `robots.ts`, `sitemap.ts`, JSON-LD structured data, and
   per-route canonical URLs added.
 
+## Performance
+**Update (Aug 9, 2026):** fonts were TTF (~406 KB total across Inter, Space
+Grotesk, JetBrains Mono, Noto Sans Thai), loaded on every single page via the
+root layout. TTF doesn't compress well for web delivery — WOFF2 uses a
+font-specific compression algorithm that typically cuts 30-60% off the same
+glyph data with zero visual difference. Converted all four (needs the
+`brotli` Python package, which needs network access this sandbox didn't
+have — done externally and the `.woff2` files brought back in): **~406 KB →
+~175 KB, a 57% reduction**, applied globally.
+
+This was diagnosed as the likely cause of `/about` scoring inconsistently on
+Lighthouse Performance (70-95 across runs) despite that page having no heavy
+JS or images — the page's `<h1>` is Thai text, and Inter/Space
+Grotesk/JetBrains Mono have no Thai glyphs, so Noto Sans Thai was very
+likely the actual LCP-blocking font on that page (and on most others, since
+this is a Thai-primary site).
+
+Not fixed as part of this: `three.js` (used only by the homepage's
+`DroneScene`/`HudPanel`, and already code-split via `next/dynamic({ ssr:
+false })` — so it shouldn't be affecting other pages already).
+
 ## Roadmap
-Phase 1–3 (foundation, redesign, 6 real tools with actual math behind them)
-are shipped. Phase 4, in progress:
-- Done: raw `.bbl` header parsing (firmware/PID/rates/filter)
+Phase 1–3 (foundation, redesign, 6 real tools with actual math behind them,
+raw `.bbl` header parsing, step response analysis, accessibility fixes
+verified via Lighthouse 100/100 across all 13 routes) are shipped. Phase 4,
+in progress:
 - Pending: raw `.bbl` binary frame decoding (full noise/tracking-error graphs
   from a raw log, no CSV export needed) — blocked on real sample files to
   test the decoder against
-- Pending: step response analysis
+- Pending: full axe-core suite via Playwright (`e2e/a11y.spec.ts` exists,
+  needs a machine that can install a browser — Lighthouse's accessibility
+  checks are an axe-core subset, not the full ~96-rule set)
 - Pending: features driven by real pilot feedback
 
 Auth and cloud sync are intentionally *not* on the roadmap yet — the app is
