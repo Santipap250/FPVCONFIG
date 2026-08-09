@@ -21,18 +21,18 @@ export default function Hero() {
           the same clear, instrument-panel language you already read in goggles.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="hero-cta-row mt-8 flex flex-wrap gap-3">
           <a
             href="/dashboard"
-            className="font-hud rounded-md bg-phosphor px-5 py-3 text-xs uppercase tracking-[0.15em] text-[#04140b] transition-transform hover:scale-[1.02]"
+            className="hero-cta hero-cta-primary font-hud rounded-md px-5 py-3 text-xs uppercase tracking-[0.15em]"
           >
-            Open dashboard
+            <span className="relative z-10">Open dashboard</span>
           </a>
           <a
             href="#tools"
-            className="font-hud rounded-md border border-line-strong px-5 py-3 text-xs uppercase tracking-[0.15em] text-ink transition-colors hover:border-phosphor hover:text-phosphor"
+            className="hero-cta hero-cta-secondary font-hud rounded-md px-5 py-3 text-xs uppercase tracking-[0.15em] text-ink"
           >
-            Explore tools
+            <span className="relative z-10">Explore tools</span>
           </a>
         </div>
 
