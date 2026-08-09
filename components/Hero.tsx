@@ -16,23 +16,29 @@ export default function Hero() {
             Your drone can do more.
           </span>
         </h1>
-        <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
+        <div aria-hidden="true" className="hero-ambient-wrap pointer-events-none relative my-6 h-20 w-full overflow-hidden md:h-24">
+          <div className="hero-ambient hero-ambient-sweep" />
+          <div className="hero-ambient hero-ambient-orb hero-ambient-orb-left" />
+          <div className="hero-ambient hero-ambient-orb hero-ambient-orb-right" />
+          <div className="hero-ambient hero-ambient-line" />
+        </div>
+        <p className="mt-1 max-w-md text-base leading-relaxed text-muted">
           OBIXCONFIG FPV turns PID tuning, blackbox logs, and build matching into
           the same clear, instrument-panel language you already read in goggles.
         </p>
 
-        <div className="hero-cta-row mt-8 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap gap-3">
           <a
             href="/dashboard"
-            className="hero-cta hero-cta-primary font-hud rounded-md px-5 py-3 text-xs uppercase tracking-[0.15em]"
+            className="font-hud rounded-md bg-phosphor px-5 py-3 text-xs uppercase tracking-[0.15em] text-[#04140b] transition-transform hover:scale-[1.02]"
           >
-            <span className="relative z-10">Open dashboard</span>
+            Open dashboard
           </a>
           <a
             href="#tools"
-            className="hero-cta hero-cta-secondary font-hud rounded-md px-5 py-3 text-xs uppercase tracking-[0.15em] text-ink"
+            className="font-hud rounded-md border border-line-strong px-5 py-3 text-xs uppercase tracking-[0.15em] text-ink transition-colors hover:border-phosphor hover:text-phosphor"
           >
-            <span className="relative z-10">Explore tools</span>
+            Explore tools
           </a>
         </div>
 
