@@ -16,7 +16,7 @@ export default function SiteFooter() {
 
         <div className="flex flex-col gap-4 text-xs text-muted md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/brand/obix-symbol.png" alt="" width={34} height={20} className="h-5 w-5 object-contain opacity-90" />
+            <Image src="/brand/obix-symbol.png" alt="" width={22} height={20} className="h-5 w-5 object-contain opacity-90" />
             <p>© {new Date().getFullYear()} OBIXCONFIG FPV — built for pilots, creators, and future app expansion.</p>
           </div>
           <div className="flex items-center gap-4">

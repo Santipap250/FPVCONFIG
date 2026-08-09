@@ -43,7 +43,7 @@ export default function SiteHeader() {
             <Image
               src="/brand/obix-symbol.png"
               alt="OBIXCONFIG FPV"
-              width={120}
+              width={79}
               height={72}
               priority
               className="h-9 w-9 object-contain"
