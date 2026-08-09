@@ -5,19 +5,19 @@ import { siteUrl } from "@/lib/site";
 import BottomNav from "@/components/BottomNav";
 
 const inter = localFont({
-  src: "./fonts/Inter.ttf",
+  src: "./fonts/Inter.woff2",
   variable: "--font-inter",
   display: "swap",
 });
 
 const spaceGrotesk = localFont({
-  src: "./fonts/SpaceGrotesk.ttf",
+  src: "./fonts/SpaceGrotesk.woff2",
   variable: "--font-space-grotesk",
   display: "swap",
 });
 
 const jetbrainsMono = localFont({
-  src: "./fonts/JetBrainsMono.ttf",
+  src: "./fonts/JetBrainsMono.woff2",
   variable: "--font-jetbrains-mono",
   display: "swap",
 });
@@ -27,7 +27,7 @@ const jetbrainsMono = localFont({
 // whatever Thai font the visitor's OS happens to default to, breaking the
 // typography system for the majority of the actual content.
 const notoSansThai = localFont({
-  src: "./fonts/NotoSansThai.ttf",
+  src: "./fonts/NotoSansThai.woff2",
   variable: "--font-thai",
   display: "swap",
 });
