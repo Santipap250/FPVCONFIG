@@ -50,8 +50,11 @@ export default function SiteHeader() {
             />
           </span>
           <span className="font-display leading-tight">
-            <span className="block text-sm font-semibold tracking-wide text-ink">OBIXCONFIG FPV</span>
-            <span className="font-hud block text-[10px] uppercase tracking-[0.2em] text-muted">
+            <span className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold tracking-wide sm:text-base">
+              <span className="text-phosphor">OBIXCONFIG</span>
+              <span className="rounded-md bg-phosphor px-1.5 py-0.5 text-[#04140b]">FPV</span>
+            </span>
+            <span className="font-hud block text-[10px] uppercase tracking-[0.26em] text-muted">
               tuning console
             </span>
           </span>
