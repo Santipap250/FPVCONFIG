@@ -16,13 +16,7 @@ export default function Hero() {
             Your drone can do more.
           </span>
         </h1>
-        <div aria-hidden="true" className="hero-ambient-wrap pointer-events-none relative my-6 h-20 w-full overflow-hidden md:h-24">
-          <div className="hero-ambient hero-ambient-sweep" />
-          <div className="hero-ambient hero-ambient-orb hero-ambient-orb-left" />
-          <div className="hero-ambient hero-ambient-orb hero-ambient-orb-right" />
-          <div className="hero-ambient hero-ambient-line" />
-        </div>
-        <p className="mt-1 max-w-md text-base leading-relaxed text-muted">
+        <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
           OBIXCONFIG FPV turns PID tuning, blackbox logs, and build matching into
           the same clear, instrument-panel language you already read in goggles.
         </p>
