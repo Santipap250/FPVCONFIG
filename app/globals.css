@@ -241,6 +241,23 @@ a {
   body::after {
     opacity: 0;
   }
+  /* Global animation-duration:0.001ms above still leaves .hero-line's
+     `forwards` fill-mode holding on the animation's END state (opacity:1) —
+     that part is fine either way. This rule exists for the .hero-shimmer
+     case specifically: it strips the gradient/background-clip so reduced-
+     motion users get plain readable text, and sets opacity/transform
+     directly rather than trusting animation timing, so text is guaranteed
+     visible even if something upstream changes the animation shorthand
+     again later. */
+  .hero-shimmer {
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    color: var(--ink);
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }
 
 .glow-text {
@@ -389,7 +406,21 @@ a {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: hero-shimmer-sweep 4.5s ease-in-out 1.3s infinite;
+    /* Both animations run together via one comma-separated declaration —
+       hero-line-in (the fade/slide-in every .hero-line gets) and
+       hero-shimmer-sweep (the gradient sweep) target different properties
+       (opacity/transform vs background-position), so they don't conflict
+       with each other. They conflicted with .hero-line's *separate*
+       `animation` declaration, though: two different `animation` shorthand
+       declarations on the same element don't merge, the later one in the
+       stylesheet wins outright — so .hero-line's fade-in was being silently
+       replaced by this rule, leaving the line stuck at opacity:0 forever.
+       Writing both animations here, in the one rule that actually wins,
+       fixes that for good instead of relying on cascade order between two
+       separate rules. */
+    animation:
+      hero-line-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards,
+      hero-shimmer-sweep 4.5s ease-in-out 1.3s infinite;
   }
 }
 
@@ -406,109 +437,4 @@ a {
 }
 
 
-.hero-ambient-wrap {
-  isolation: isolate;
-}
 
-.hero-ambient {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.hero-ambient-sweep {
-  left: -18%;
-  right: -18%;
-  top: 14%;
-  height: 52%;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(124, 255, 178, 0) 18%,
-    rgba(124, 255, 178, 0.12) 42%,
-    rgba(255, 255, 255, 0.16) 50%,
-    rgba(124, 255, 178, 0.18) 58%,
-    rgba(124, 255, 178, 0) 82%,
-    transparent 100%
-  );
-  filter: blur(18px);
-  mix-blend-mode: screen;
-  opacity: 0.72;
-  transform: translateX(-58%) rotate(-4deg);
-  animation: hero-sheen 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-.hero-ambient-orb {
-  width: 140px;
-  height: 140px;
-  border-radius: 999px;
-  filter: blur(20px);
-  opacity: 0.22;
-  mix-blend-mode: screen;
-  background: radial-gradient(circle at 35% 35%, rgba(124, 255, 178, 0.38), rgba(124, 255, 178, 0.12) 42%, transparent 72%);
-}
-
-.hero-ambient-orb-left {
-  left: 2%;
-  top: 2%;
-  animation: hero-orb-drift-left 12s ease-in-out infinite alternate;
-}
-
-.hero-ambient-orb-right {
-  right: 4%;
-  bottom: -12px;
-  animation: hero-orb-drift-right 14s ease-in-out infinite alternate;
-}
-
-.hero-ambient-line {
-  left: 8%;
-  right: 12%;
-  top: 52%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(124, 255, 178, 0.45), rgba(255,255,255,0.7), rgba(124, 255, 178, 0.45), transparent);
-  box-shadow: 0 0 18px rgba(124, 255, 178, 0.24);
-  animation: hero-line-glide 7.5s ease-in-out infinite;
-}
-
-@keyframes hero-sheen {
-  0% { transform: translateX(-58%) rotate(-4deg); opacity: 0; }
-  12% { opacity: 0.75; }
-  45% { transform: translateX(0%) rotate(-4deg); opacity: 0.9; }
-  58% { opacity: 0.55; }
-  100% { transform: translateX(58%) rotate(-4deg); opacity: 0; }
-}
-
-@keyframes hero-orb-drift-left {
-  0% { transform: translate3d(0, 0, 0) scale(0.95); }
-  100% { transform: translate3d(26px, 10px, 0) scale(1.08); }
-}
-
-@keyframes hero-orb-drift-right {
-  0% { transform: translate3d(0, 0, 0) scale(0.95); }
-  100% { transform: translate3d(-22px, -8px, 0) scale(1.1); }
-}
-
-@keyframes hero-line-glide {
-  0%, 100% { transform: translateX(-2%); opacity: 0.45; }
-  50% { transform: translateX(2%); opacity: 0.85; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-ambient-sweep,
-  .hero-ambient-orb-left,
-  .hero-ambient-orb-right,
-  .hero-ambient-line {
-    animation: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-shimmer {
-    background: none;
-    -webkit-background-clip: initial;
-    background-clip: initial;
-    color: var(--ink);
-    animation: none;
-  }
-}
