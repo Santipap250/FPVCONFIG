@@ -1,12 +1,27 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
+import {
+  AmbientLight,
+  BoxGeometry,
+  Clock,
+  CylinderGeometry,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  OctahedronGeometry,
+  PerspectiveCamera,
+  PointLight,
+  Scene,
+  SphereGeometry,
+  TorusGeometry,
+  WebGLRenderer,
+} from "three";
 
-function buildDrone(): THREE.Group {
-  const drone = new THREE.Group();
+function buildDrone(): Group {
+  const drone = new Group();
 
-  const frameMaterial = new THREE.MeshStandardMaterial({
+  const frameMaterial = new MeshStandardMaterial({
     color: 0x0c1410,
     metalness: 0.6,
     roughness: 0.35,
@@ -14,27 +29,27 @@ function buildDrone(): THREE.Group {
     emissiveIntensity: 0.4,
   });
 
-  const armMaterial = new THREE.MeshStandardMaterial({
+  const armMaterial = new MeshStandardMaterial({
     color: 0x111a16,
     metalness: 0.7,
     roughness: 0.3,
   });
 
-  const phosphorMaterial = new THREE.MeshStandardMaterial({
+  const phosphorMaterial = new MeshStandardMaterial({
     color: 0x7cffb2,
     emissive: 0x7cffb2,
     emissiveIntensity: 1.4,
     toneMapped: false,
   });
 
-  const amberMaterial = new THREE.MeshStandardMaterial({
+  const amberMaterial = new MeshStandardMaterial({
     color: 0xffb454,
     emissive: 0xffb454,
     emissiveIntensity: 1.2,
     toneMapped: false,
   });
 
-  const bladeMaterial = new THREE.MeshStandardMaterial({
+  const bladeMaterial = new MeshStandardMaterial({
     color: 0x0a0f0d,
     metalness: 0.2,
     roughness: 0.6,
@@ -43,12 +58,12 @@ function buildDrone(): THREE.Group {
   });
 
   // Central hub — a flattened octahedron reads as a compact FPV frame body
-  const hub = new THREE.Mesh(new THREE.OctahedronGeometry(0.34, 0), frameMaterial);
+  const hub = new Mesh(new OctahedronGeometry(0.34, 0), frameMaterial);
   hub.scale.set(1, 0.45, 1);
   drone.add(hub);
 
   // Front-facing LED (orientation indicator, common on real FPV frames)
-  const frontLed = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), phosphorMaterial);
+  const frontLed = new Mesh(new SphereGeometry(0.05, 12, 12), phosphorMaterial);
   frontLed.position.set(0, 0.05, 0.42);
   drone.add(frontLed);
 
@@ -57,19 +72,19 @@ function buildDrone(): THREE.Group {
 
   armAngles.forEach((deg) => {
     const rad = (deg * Math.PI) / 180;
-    const armGroup = new THREE.Group();
+    const armGroup = new Group();
     armGroup.rotation.y = rad;
 
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, armLength), armMaterial);
+    const arm = new Mesh(new BoxGeometry(0.09, 0.06, armLength), armMaterial);
     arm.position.set(0, 0, armLength / 2);
     armGroup.add(arm);
 
-    const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.16, 16), frameMaterial);
+    const motor = new Mesh(new CylinderGeometry(0.11, 0.13, 0.16, 16), frameMaterial);
     motor.position.set(0, 0.05, armLength);
     armGroup.add(motor);
 
-    const motorRing = new THREE.Mesh(
-      new THREE.TorusGeometry(0.115, 0.012, 8, 20),
+    const motorRing = new Mesh(
+      new TorusGeometry(0.115, 0.012, 8, 20),
       deg === 45 || deg === 135 ? amberMaterial : phosphorMaterial
     );
     motorRing.rotation.x = Math.PI / 2;
@@ -77,11 +92,11 @@ function buildDrone(): THREE.Group {
     armGroup.add(motorRing);
 
     // Two-blade propeller — spins independently in the render loop
-    const propGroup = new THREE.Group();
+    const propGroup = new Group();
     propGroup.position.set(0, 0.15, armLength);
     propGroup.name = "propeller";
 
-    const blade1 = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.008, 0.11), bladeMaterial);
+    const blade1 = new Mesh(new BoxGeometry(0.85, 0.008, 0.11), bladeMaterial);
     const blade2 = blade1.clone();
     blade2.rotation.y = Math.PI / 2;
     propGroup.add(blade1, blade2);
@@ -103,9 +118,9 @@ export default function DroneScene() {
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    let renderer: THREE.WebGLRenderer;
+    let renderer: WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+      renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
     } catch {
       if (fallbackRef.current) fallbackRef.current.style.display = "flex";
       return;
@@ -114,8 +129,8 @@ export default function DroneScene() {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(38, width / height, 0.1, 100);
     camera.position.set(0.6, 1.15, 3.1);
     camera.lookAt(0, 0, 0);
 
@@ -123,11 +138,11 @@ export default function DroneScene() {
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0x0d1a14, 1.4));
-    const keyLight = new THREE.PointLight(0x7cffb2, 6, 8, 2);
+    scene.add(new AmbientLight(0x0d1a14, 1.4));
+    const keyLight = new PointLight(0x7cffb2, 6, 8, 2);
     keyLight.position.set(-1.5, 1.8, 1.5);
     scene.add(keyLight);
-    const rimLight = new THREE.PointLight(0xffb454, 3, 8, 2);
+    const rimLight = new PointLight(0xffb454, 3, 8, 2);
     rimLight.position.set(1.8, 0.6, -1.2);
     scene.add(rimLight);
 
@@ -136,11 +151,11 @@ export default function DroneScene() {
 
     const propellers = drone.children
       .flatMap((armGroup) => armGroup.children)
-      .filter((child): child is THREE.Group => child.name === "propeller");
+      .filter((child): child is Group => child.name === "propeller");
 
     let frameId: number;
     let elapsed = 0;
-    const clock = new THREE.Clock();
+    const clock = new Clock();
 
     const animate = () => {
       const delta = clock.getDelta();
@@ -177,7 +192,7 @@ export default function DroneScene() {
       cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
       scene.traverse((obj) => {
-        if (obj instanceof THREE.Mesh) {
+        if (obj instanceof Mesh) {
           obj.geometry.dispose();
           const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
           materials.forEach((m) => m.dispose());
