@@ -162,91 +162,95 @@ export default function DroneScene() {
 }
 
 function setupScene(container: HTMLDivElement, fallbackEl: HTMLDivElement | null): (() => void) | undefined {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    let renderer: WebGLRenderer;
-    try {
-      renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
-    } catch {
-      if (fallbackEl) fallbackEl.style.display = "flex";
-      return;
-    }
+  let renderer: WebGLRenderer;
+  try {
+    // antialias:false — MSAA is real GPU cost per frame, and on the small
+    // (usually <400px) HUD panel this renders into, jagged edges on a dark
+    // glowing UI aren't very noticeable. Trading it away lowers the cost of
+    // every single frame, not just the first one.
+    renderer = new WebGLRenderer({ alpha: true, antialias: false, powerPreference: "low-power" });
+  } catch {
+    if (fallbackEl) fallbackEl.style.display = "flex";
+    return undefined;
+  }
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+  const width = container.clientWidth;
+  const height = container.clientHeight;
 
-    const scene = new Scene();
-    const camera = new PerspectiveCamera(38, width / height, 0.1, 100);
-    camera.position.set(0.6, 1.15, 3.1);
-    camera.lookAt(0, 0, 0);
+  const scene = new Scene();
+  const camera = new PerspectiveCamera(38, width / height, 0.1, 100);
+  camera.position.set(0.6, 1.15, 3.1);
+  camera.lookAt(0, 0, 0);
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(width, height);
-    container.appendChild(renderer.domElement);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(width, height);
+  container.appendChild(renderer.domElement);
 
-    scene.add(new AmbientLight(0x0d1a14, 1.4));
-    const keyLight = new PointLight(0x7cffb2, 6, 8, 2);
-    keyLight.position.set(-1.5, 1.8, 1.5);
-    scene.add(keyLight);
-    const rimLight = new PointLight(0xffb454, 3, 8, 2);
-    rimLight.position.set(1.8, 0.6, -1.2);
-    scene.add(rimLight);
+  scene.add(new AmbientLight(0x0d1a14, 1.4));
+  const keyLight = new PointLight(0x7cffb2, 6, 8, 2);
+  keyLight.position.set(-1.5, 1.8, 1.5);
+  scene.add(keyLight);
+  const rimLight = new PointLight(0xffb454, 3, 8, 2);
+  rimLight.position.set(1.8, 0.6, -1.2);
+  scene.add(rimLight);
 
-    const drone = buildDrone();
-    scene.add(drone);
+  const drone = buildDrone();
+  scene.add(drone);
 
-    const propellers = drone.children
-      .flatMap((armGroup) => armGroup.children)
-      .filter((child): child is Group => child.name === "propeller");
+  const propellers = drone.children
+    .flatMap((armGroup) => armGroup.children)
+    .filter((child): child is Group => child.name === "propeller");
 
-    let frameId: number;
-    let elapsed = 0;
-    const clock = new Clock();
+  let frameId: number;
+  let elapsed = 0;
+  const clock = new Clock();
 
-    const animate = () => {
-      const delta = clock.getDelta();
-      elapsed += delta;
+  const animate = () => {
+    const delta = clock.getDelta();
+    elapsed += delta;
 
-      const motionScale = prefersReducedMotion ? 0.04 : 1;
+    const motionScale = prefersReducedMotion ? 0.04 : 1;
 
-      drone.rotation.y = elapsed * 0.25 * motionScale;
-      drone.rotation.z = Math.sin(elapsed * 0.6) * 0.16 * motionScale;
-      drone.rotation.x = Math.sin(elapsed * 0.4) * 0.05 * motionScale;
-      drone.position.y = Math.sin(elapsed * 0.9) * 0.04 * motionScale;
+    drone.rotation.y = elapsed * 0.25 * motionScale;
+    drone.rotation.z = Math.sin(elapsed * 0.6) * 0.16 * motionScale;
+    drone.rotation.x = Math.sin(elapsed * 0.4) * 0.05 * motionScale;
+    drone.position.y = Math.sin(elapsed * 0.9) * 0.04 * motionScale;
 
-      propellers.forEach((prop, i) => {
-        prop.rotation.y += delta * (i % 2 === 0 ? 22 : -22) * motionScale;
-      });
+    propellers.forEach((prop, i) => {
+      prop.rotation.y += delta * (i % 2 === 0 ? 22 : -22) * motionScale;
+    });
 
-      renderer.render(scene, camera);
-      frameId = requestAnimationFrame(animate);
-    };
-    animate();
+    renderer.render(scene, camera);
+    frameId = requestAnimationFrame(animate);
+  };
+  animate();
 
-    const handleResize = () => {
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      if (w === 0 || h === 0) return;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    const resizeObserver = new ResizeObserver(handleResize);
-    resizeObserver.observe(container);
+  const handleResize = () => {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    if (w === 0 || h === 0) return;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  };
+  const resizeObserver = new ResizeObserver(handleResize);
+  resizeObserver.observe(container);
 
-    return () => {
-      cancelAnimationFrame(frameId);
-      resizeObserver.disconnect();
-      scene.traverse((obj) => {
-        if (obj instanceof Mesh) {
-          obj.geometry.dispose();
-          const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
-          materials.forEach((m) => m.dispose());
-        }
-      });
-      renderer.dispose();
-      if (renderer.domElement.parentElement === container) {
-        container.removeChild(renderer.domElement);
+  return () => {
+    cancelAnimationFrame(frameId);
+    resizeObserver.disconnect();
+    scene.traverse((obj) => {
+      if (obj instanceof Mesh) {
+        obj.geometry.dispose();
+        const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+        materials.forEach((m) => m.dispose());
       }
-    };
+    });
+    renderer.dispose();
+    if (renderer.domElement.parentElement === container) {
+      container.removeChild(renderer.domElement);
+    }
+  };
 }
