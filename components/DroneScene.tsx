@@ -108,6 +108,22 @@ function buildDrone(): Group {
   return drone;
 }
 
+// Building the scene (geometry, materials, renderer) and starting the
+// render loop is real synchronous work — enough to show up as "long tasks"
+// on the main thread if it runs the instant this component mounts, which
+// competes with the browser painting the actual page content (headline,
+// CTA) that visitors came for. Deferring it to an idle moment lets that
+// paint happen first; the drone appears a beat later instead of blocking
+// it. Safari has no requestIdleCallback, hence the setTimeout fallback.
+function onIdle(callback: () => void): () => void {
+  if (typeof window.requestIdleCallback === "function") {
+    const id = window.requestIdleCallback(callback, { timeout: 1200 });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = window.setTimeout(callback, 200);
+  return () => window.clearTimeout(id);
+}
+
 export default function DroneScene() {
   const containerRef = useRef<HTMLDivElement>(null);
   const fallbackRef = useRef<HTMLDivElement>(null);
@@ -116,13 +132,43 @@ export default function DroneScene() {
     const container = containerRef.current;
     if (!container) return;
 
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+
+    const cancelIdle = onIdle(() => {
+      if (cancelled) return;
+      cleanup = setupScene(container, fallbackRef.current);
+    });
+
+    return () => {
+      cancelled = true;
+      cancelIdle();
+      cleanup?.();
+    };
+  }, []);
+
+  return (
+    <>
+      <div ref={containerRef} className="h-full w-full" aria-hidden="true" />
+      <div
+        ref={fallbackRef}
+        className="absolute inset-0 hidden items-center justify-center text-xs text-muted"
+        aria-hidden="true"
+      >
+        <span className="font-hud">3D preview unavailable on this device</span>
+      </div>
+    </>
+  );
+}
+
+function setupScene(container: HTMLDivElement, fallbackEl: HTMLDivElement | null): (() => void) | undefined {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let renderer: WebGLRenderer;
     try {
       renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
     } catch {
-      if (fallbackRef.current) fallbackRef.current.style.display = "flex";
+      if (fallbackEl) fallbackEl.style.display = "flex";
       return;
     }
 
@@ -203,18 +249,4 @@ export default function DroneScene() {
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
-
-  return (
-    <>
-      <div ref={containerRef} className="h-full w-full" aria-hidden="true" />
-      <div
-        ref={fallbackRef}
-        className="absolute inset-0 hidden items-center justify-center text-xs text-muted"
-        aria-hidden="true"
-      >
-        <span className="font-hud">3D preview unavailable on this device</span>
-      </div>
-    </>
-  );
 }
