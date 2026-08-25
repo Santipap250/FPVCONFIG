@@ -7,7 +7,7 @@ under one shared design system.
 ## Stack
 - Next.js 16 (App Router) + TypeScript
 - Tailwind CSS v4 (CSS-token based theme, see `app/globals.css`)
-- Self-hosted fonts as WOFF2 (Inter, Space Grotesk, JetBrains Mono, Noto Sans Thai — OFL licensed, no external font fetch at build or runtime; converted from TTF on Aug 9, 2026, cutting total font weight from ~406 KB to ~175 KB — see "Performance" below)
+- Fonts: Plus Jakarta Sans (body) + Bricolage Grotesque (display/headings) via `next/font/google` (self-hosted automatically at build time, no runtime Google Fonts request — swapped from Inter/Space Grotesk on Aug 25, 2026 for a more distinctive premium look); JetBrains Mono (HUD labels) + Noto Sans Thai self-hosted as WOFF2 (converted from TTF on Aug 9, 2026 — see "Performance" below)
 - Manual PWA: `public/manifest.webmanifest` + `public/sw.js`, registered from `components/ServiceWorkerRegister.tsx`
 - Vitest for unit tests on the calculation-heavy `lib/` modules
 
