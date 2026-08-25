@@ -260,10 +260,6 @@ a {
   }
 }
 
-.glow-text {
-  text-shadow: 0 0 24px rgba(124, 255, 178, 0.35);
-}
-
 .tick {
   animation: tick 3.2s steps(1) infinite;
 }
@@ -271,16 +267,6 @@ a {
 @keyframes tick {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
-}
-
-.horizon-roll {
-  animation: horizon-roll 8s ease-in-out infinite;
-  transform-origin: 50% 50%;
-}
-
-@keyframes horizon-roll {
-  0%, 100% { transform: rotate(-2.5deg) translateY(0); }
-  50% { transform: rotate(2.5deg) translateY(-4px); }
 }
 
 /* Corner-bracket HUD frame, used on instrument cards */
