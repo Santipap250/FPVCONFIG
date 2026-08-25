@@ -1,18 +1,28 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import { siteUrl } from "@/lib/site";
 import BottomNav from "@/components/BottomNav";
 
-const inter = localFont({
-  src: "./fonts/Inter.woff2",
-  variable: "--font-inter",
+// Premium refresh (Aug 2026): swapped the body/display pair for something
+// with more personality than the very-default Inter/Space Grotesk combo —
+// Plus Jakarta Sans reads warmer at body-copy sizes, Bricolage Grotesque's
+// slightly irregular letterforms give headings a more distinctive, designed
+// feel at the large sizes this site uses them at (hero, section titles).
+// Both come through next/font/google, which self-hosts them at build time
+// (Vercel's build has internet; this sandbox doesn't, which is why these
+// two use the Google loader instead of manually-converted local .woff2
+// files like the mono/Thai fonts below still do).
+const bodyFont = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-body-face",
   display: "swap",
 });
 
-const spaceGrotesk = localFont({
-  src: "./fonts/SpaceGrotesk.woff2",
-  variable: "--font-space-grotesk",
+const displayFont = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-display-face",
   display: "swap",
 });
 
@@ -22,10 +32,10 @@ const jetbrainsMono = localFont({
   display: "swap",
 });
 
-// Inter / Space Grotesk / JetBrains Mono don't include Thai glyphs — without
-// this, Thai text (most of this site's copy) silently falls back to
-// whatever Thai font the visitor's OS happens to default to, breaking the
-// typography system for the majority of the actual content.
+// Neither of the two fonts above include Thai glyphs — without this, Thai
+// text (most of this site's copy) silently falls back to whatever Thai
+// font the visitor's OS happens to default to, breaking the typography
+// system for the majority of the actual content.
 const notoSansThai = localFont({
   src: "./fonts/NotoSansThai.woff2",
   variable: "--font-thai",
@@ -95,7 +105,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${notoSansThai.variable}`}>
+    <html lang="th" className={`${bodyFont.variable} ${displayFont.variable} ${jetbrainsMono.variable} ${notoSansThai.variable}`}>
       <body>
         {children}
         <BottomNav />
