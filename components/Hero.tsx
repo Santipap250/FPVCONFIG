@@ -24,13 +24,13 @@ export default function Hero() {
         <div className="mt-8 flex flex-wrap gap-3">
           <a
             href="/dashboard"
-            className="font-hud rounded-md bg-phosphor px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.15em] text-[#04140b] shadow-[0_0_24px_rgba(124,255,178,0.4)] transition-transform hover:scale-[1.02]"
+            className="font-hud rounded-md bg-phosphor px-6 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-black shadow-[0_0_24px_rgba(124,255,178,0.4)] transition-transform hover:scale-[1.02]"
           >
             Open dashboard
           </a>
           <a
             href="#tools"
-            className="font-hud rounded-md border-2 border-phosphor/60 bg-phosphor/10 px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.15em] text-ink transition-colors hover:border-phosphor hover:bg-phosphor/20 hover:text-phosphor"
+            className="font-hud rounded-md border-2 border-phosphor/70 bg-phosphor/10 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-phosphor transition-colors hover:border-phosphor hover:bg-phosphor/20"
           >
             Explore tools
           </a>
