@@ -33,6 +33,8 @@ lib/faq.ts               single source of truth for FAQ content (FaqSection UI +
 lib/structuredData.ts    JSON-LD builders (Organization, WebSite, WebApplication, FAQPage, Breadcrumb)
 lib/blackboxAnalyzer.ts  CSV blackbox parsing — real FFT, tracking error, motor sat., battery sag
 lib/blackboxHeader.ts    raw .bbl header-only parsing (firmware/PID/rates/filter) — see note below
+lib/flightLog.ts          normalized FlightLog model shared by CSV + .bbl-header parsing, data-quality assessment, file validation
+lib/diagnostics.ts        hedged, confidence-rated observations from FlightLog metrics — not autonomous tuning advice
 lib/_tests_/             vitest unit tests for the calculation-heavy lib/ modules
 public/                  manifest, service worker, icons, og image
 ```
@@ -115,6 +117,31 @@ gyro/motor frame data needs real sample `.bbl` files to validate the
 predictor/encoding logic against, so it isn't attempted blind. See
 `lib/blackboxHeader.ts` for the reasoning.
 
+**Supported formats (Aug 2026):**
+
+| Format | Status | What you get |
+|---|---|---|
+| CSV (decoded via Blackbox Explorer / `blackbox_decode`) | **Fully supported** | RMS tracking error, FFT noise spectrum, motor saturation, battery sag, throttle/noise correlation, step response — all per-axis |
+| `.bbl` (raw, binary) | **Header only** | Firmware, board, PID, rates, filter settings as logged — no telemetry (see above) |
+| `.bbl` (raw, binary) — full frame decode | **Pending sample verification** | Not implemented. Needs real `.bbl` files to validate the predictor/encoding logic against before writing a decoder — see Roadmap |
+
+**Architecture (Phase 4A, Aug 2026):** parsing and analysis are two separate
+layers connected by one normalized type, `FlightLog` (`lib/flightLog.ts`).
+Both `lib/blackboxAnalyzer.ts`'s CSV parser and `lib/blackboxHeader.ts`'s
+`.bbl`-header parser produce a `FlightLog`; the diagnostic engine
+(`lib/diagnostics.ts`) and UI only ever read that shape, never CSV rows or
+raw bytes directly. This means a future real `.bbl` binary decoder just
+needs to produce a `FlightLog` too — nothing downstream has to change.
+`FlightLog.channels` records exactly which sections of the model are
+actually populated for a given log (a raw `.bbl` today: `metadata` only),
+and `assessDataQuality()` turns that into a plain-language quality rating
+(Excellent/Good/Limited/Insufficient) with reasons traceable to specific
+channels or sample counts — never a hidden score. `lib/diagnostics.ts`
+turns the existing metrics into hedged observations ("Possible indication",
+"needs verification") with a confidence level tied to real data quality,
+not an autonomous tuning verdict — it doesn't invent PID values; that
+stays `derivePidSuggestion`'s job, unchanged.
+
 ## What changed vs. the original static repo
 - Single-page static HTML/CSS/JS (9 files, no routing, no build step) →
   Next.js app with real per-tool routes, static generation, and metadata.
@@ -152,16 +179,33 @@ false })` — so it shouldn't be affecting other pages already).
 ## Roadmap
 Phase 1–3 (foundation, redesign, 6 real tools with actual math behind them,
 raw `.bbl` header parsing, step response analysis, accessibility fixes
-verified via Lighthouse 100/100 across all 13 routes) are shipped. Phase 4,
-in progress:
-- Pending: raw `.bbl` binary frame decoding (full noise/tracking-error graphs
-  from a raw log, no CSV export needed) — blocked on real sample files to
-  test the decoder against
-- Pending: full axe-core suite via Playwright (`e2e/a11y.spec.ts` exists,
-  needs a machine that can install a browser — Lighthouse's accessibility
-  checks are an axe-core subset, not the full ~96-rule set)
-- Pending: features driven by real pilot feedback
+verified via Lighthouse 100/100 across all 13 routes) are shipped.
 
-Auth and cloud sync are intentionally *not* on the roadmap yet — the app is
-local-first by design (all saved data lives in the browser's localStorage),
-not an oversight to be fixed later.
+**Phase 4A (Aug 2026) — shipped:** normalized `FlightLog` data model shared
+by CSV and `.bbl`-header parsing (`lib/flightLog.ts`), explicit file
+validation with actionable errors, a data-quality assessment layer
+(Excellent/Good/Limited/Insufficient with traceable reasons), and a
+diagnostic engine (`lib/diagnostics.ts`) that turns existing metrics into
+hedged, confidence-rated observations. The Blackbox Analyzer UI now shows an
+explicit pipeline status (uploading/parsing/analyzing/complete/partial/error)
+instead of implying it through loading booleans. None of this adds `.bbl`
+binary telemetry decoding — that's still correctly blocked on real sample
+files (see below) and this phase doesn't pretend otherwise.
+
+**Phase 4, still pending:**
+- Raw `.bbl` binary frame decoding (full noise/tracking-error graphs from a
+  raw log, no CSV export needed) — blocked on real sample files to test the
+  decoder against. `FlightLog`/`channels` already model what a future
+  decoder's output should look like, so wiring it in won't require changing
+  the analysis or diagnostic layers.
+- Full axe-core suite via Playwright (`e2e/a11y.spec.ts` exists, needs a
+  machine that can install a browser — Lighthouse's accessibility checks are
+  an axe-core subset, not the full ~96-rule set)
+- Features driven by real pilot feedback
+
+**Future backlog (explicitly out of scope until there's a real reason):**
+i18n, authentication, cloud sync/account system, analytics, a native mobile
+app, a database, or any backend beyond what Vercel's static hosting already
+provides. Auth and cloud sync specifically are *not* an oversight — the app
+is local-first by design (all saved data lives in the browser's
+localStorage).
