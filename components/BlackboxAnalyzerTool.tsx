@@ -16,6 +16,16 @@ import {
   parseBlackboxHeader,
   type BlackboxHeaderInfo,
 } from "@/lib/blackboxHeader";
+import {
+  validateBlackboxFile,
+  assessDataQuality,
+  flightLogFromCsvResult,
+  flightLogFromHeaderInfo,
+  dataQualityLabel,
+  type FlightLog,
+  type DataQualityAssessment,
+} from "@/lib/flightLog";
+import { runDiagnostics, type Observation } from "@/lib/diagnostics";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import { useBuildProfiles } from "@/lib/useBuildProfiles";
 import ActiveBuildBanner from "./ActiveBuildBanner";
@@ -23,6 +33,41 @@ import ActiveBuildBanner from "./ActiveBuildBanner";
 const STORAGE_KEY = "saved-blackbox-analyses-v1";
 
 const AXIS_LABELS = { roll: "Roll", pitch: "Pitch", yaw: "Yaw" } as const;
+
+/** Explicit pipeline state — surfaced in the UI as a status line so the
+ * flow (upload → parse → analyze → done/error) is traceable, not just
+ * implied by which nullable fields happen to be set. */
+type AnalyzerState = "idle" | "uploading" | "parsing" | "parsed" | "analyzing" | "complete" | "partial" | "error";
+
+const analyzerStateLabel: Record<AnalyzerState, string> = {
+  idle: "รอไฟล์",
+  uploading: "กำลังอ่านไฟล์...",
+  parsing: "กำลัง parse ข้อมูล...",
+  parsed: "Parse สำเร็จ",
+  analyzing: "กำลังวิเคราะห์...",
+  complete: "วิเคราะห์เสร็จสมบูรณ์",
+  partial: "วิเคราะห์ได้บางส่วน (header เท่านั้น)",
+  error: "เกิดข้อผิดพลาด",
+};
+
+const dataQualityBadgeClass: Record<DataQualityAssessment["level"], string> = {
+  excellent: "border-phosphor/50 bg-phosphor/10 text-phosphor",
+  good: "border-tool-rates/50 bg-tool-rates/10 text-tool-rates",
+  limited: "border-amber/50 bg-amber/10 text-amber",
+  insufficient: "border-danger/50 bg-danger/10 text-danger",
+};
+
+const severityDotClass: Record<Observation["severity"], string> = {
+  info: "bg-phosphor-dim",
+  notice: "bg-amber",
+  warning: "bg-danger",
+};
+
+const confidenceLabel: Record<Observation["confidence"], string> = {
+  high: "Confidence: High",
+  medium: "Confidence: Medium",
+  low: "Confidence: Low",
+};
 
 function spectrumToPath(magnitudes: number[]): string {
   if (magnitudes.length === 0) return "";
@@ -62,13 +107,18 @@ export default function BlackboxAnalyzerTool() {
   const { activeProfile } = useBuildProfiles();
   const [result, setResult] = useState<BlackboxResult | null>(null);
   const [headerInfo, setHeaderInfo] = useState<BlackboxHeaderInfo | null>(null);
+  const [flightLog, setFlightLog] = useState<FlightLog | null>(null);
+  const [quality, setQuality] = useState<DataQualityAssessment | null>(null);
+  const [observations, setObservations] = useState<Observation[]>([]);
+  const [analyzerState, setAnalyzerState] = useState<AnalyzerState>("idle");
   const [showRawHeader, setShowRawHeader] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [savedAnalyses, setSavedAnalyses] = useLocalStorage<SavedAnalysis[]>(STORAGE_KEY, []);
   const [savedNotice, setSavedNotice] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const isLoading = analyzerState === "uploading" || analyzerState === "parsing" || analyzerState === "analyzing";
 
   const suggestion = useMemo(() => (result ? derivePidSuggestion(result) : null), [result]);
 
@@ -86,13 +136,27 @@ export default function BlackboxAnalyzerTool() {
     setError(null);
     setResult(null);
     setHeaderInfo(null);
+    setFlightLog(null);
+    setQuality(null);
+    setObservations([]);
     setShowRawHeader(false);
     setFileName(file.name);
-    setIsLoading(true);
+    setAnalyzerState("uploading");
+
+    // Validate before ever touching file contents — untrusted input gets a
+    // specific, actionable reason to stop here rather than a confusing
+    // parse failure three steps later.
+    const validationError = validateBlackboxFile(file);
+    if (validationError) {
+      setError(validationError.message);
+      setAnalyzerState("error");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = () => {
       try {
+        setAnalyzerState("parsing");
         const text = String(reader.result ?? "");
         const kind = detectBlackboxFileKind(text);
 
@@ -100,9 +164,25 @@ export default function BlackboxAnalyzerTool() {
           // Raw .bbl: header block only (firmware/PIDs/rates/filters as
           // logged), not the binary gyro/motor frames — see lib/blackboxHeader.ts
           // for why the frame data itself isn't decoded here.
-          setHeaderInfo(parseBlackboxHeader(text));
+          const parsedHeader = parseBlackboxHeader(text);
+          setHeaderInfo(parsedHeader);
+          setAnalyzerState("analyzing");
+          const log = flightLogFromHeaderInfo(parsedHeader);
+          setFlightLog(log);
+          const q = assessDataQuality(log);
+          setQuality(q);
+          setObservations(runDiagnostics(log, q));
+          setAnalyzerState("partial");
         } else if (kind === "csv") {
-          setResult(parseBlackboxCsv(text));
+          const parsed = parseBlackboxCsv(text);
+          setResult(parsed);
+          setAnalyzerState("analyzing");
+          const log = flightLogFromCsvResult(parsed);
+          setFlightLog(log);
+          const q = assessDataQuality(log);
+          setQuality(q);
+          setObservations(runDiagnostics(log, q));
+          setAnalyzerState("complete");
         } else {
           throw new Error(
             "อ่านไฟล์นี้ไม่ออก — รองรับ CSV ที่ decode แล้วจาก Blackbox Explorer/blackbox_decode (วิเคราะห์เต็มรูปแบบ) หรือไฟล์ .bbl ดิบ (อ่านได้เฉพาะ header: firmware/PID/rates/filter)"
@@ -110,13 +190,12 @@ export default function BlackboxAnalyzerTool() {
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : "อ่านไฟล์ไม่สำเร็จ");
-      } finally {
-        setIsLoading(false);
+        setAnalyzerState("error");
       }
     };
     reader.onerror = () => {
       setError("อ่านไฟล์ไม่สำเร็จ");
-      setIsLoading(false);
+      setAnalyzerState("error");
     };
     reader.readAsText(file);
   }, []);
@@ -152,9 +231,10 @@ export default function BlackboxAnalyzerTool() {
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="font-hud mt-4 rounded-md border border-line-strong px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-phosphor hover:bg-phosphor hover:text-[#04140b]"
+          disabled={isLoading}
+          className="font-hud mt-4 rounded-md border border-line-strong px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-phosphor hover:bg-phosphor hover:text-[#04140b] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-phosphor"
         >
-          เลือกไฟล์
+          {isLoading ? "กำลังประมวลผล..." : "เลือกไฟล์"}
         </button>
         <input
           ref={inputRef}
@@ -170,11 +250,71 @@ export default function BlackboxAnalyzerTool() {
         </p>
       </div>
 
-      {isLoading && <p className="mt-6 font-hud text-sm text-phosphor-dim">กำลังวิเคราะห์...</p>}
+      {analyzerState !== "idle" && (
+        <p className="mt-6 font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">
+          Status: {analyzerStateLabel[analyzerState]}
+        </p>
+      )}
 
       {error && (
-        <div className="mt-6 rounded-xl border border-danger/40 bg-danger/5 px-5 py-4 text-sm text-danger">
+        <div className="mt-3 rounded-xl border border-danger/40 bg-danger/5 px-5 py-4 text-sm text-danger">
           {error}
+        </div>
+      )}
+
+      {quality && (
+        <div className="mt-6 rounded-2xl border border-line-strong bg-bg-panel/70 p-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">Data quality</span>
+            <span
+              className={`font-hud rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.15em] ${dataQualityBadgeClass[quality.level]}`}
+            >
+              {dataQualityLabel[quality.level]}
+            </span>
+          </div>
+          <ul className="mt-3 space-y-1.5">
+            {quality.reasons.map((reason) => (
+              <li key={reason} className="flex gap-2 text-sm text-muted">
+                <span aria-hidden="true">·</span>
+                <span>{reason}</span>
+              </li>
+            ))}
+          </ul>
+          {flightLog && (
+            <p className="mt-3 text-[11px] text-muted">
+              ที่มา: {flightLog.source === "csv" ? "CSV ที่ decode แล้ว" : "ไฟล์ .bbl ดิบ (header เท่านั้น)"}
+              {flightLog.durationSeconds !== null && ` · ${flightLog.durationSeconds.toFixed(1)}s`}
+              {flightLog.sampleCount > 0 &&
+                ` · วิเคราะห์ ${flightLog.analyzedSampleCount.toLocaleString()} จาก ${flightLog.sampleCount.toLocaleString()} แถว`}
+            </p>
+          )}
+        </div>
+      )}
+
+      {observations.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-line-strong bg-bg-panel/70 p-6">
+          <span className="font-hud text-xs uppercase tracking-[0.15em] text-phosphor-dim">
+            Diagnosis — แนวทางคร่าว ๆ ไม่ใช่ข้อสรุปฟันธง
+          </span>
+          <ul className="mt-4 space-y-4">
+            {observations.map((obs) => (
+              <li key={obs.id} className="rounded-lg border border-line px-4 py-3">
+                <div className="flex items-start gap-2">
+                  <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${severityDotClass[obs.severity]}`} aria-hidden="true" />
+                  <div>
+                    <p className="text-sm text-ink">
+                      {obs.axis && <span className="font-hud text-phosphor-dim">[{obs.axis}] </span>}
+                      {obs.observation}
+                    </p>
+                    {obs.possibleCause && <p className="mt-1 text-sm text-muted">{obs.possibleCause}</p>}
+                    <p className="font-hud mt-1.5 text-[10px] uppercase tracking-[0.15em] text-muted">
+                      {confidenceLabel[obs.confidence]}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
